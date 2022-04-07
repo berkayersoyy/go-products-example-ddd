@@ -1,3 +1,3 @@
-module go-products-example-ddd
+module github.com/berkayersoyy/go-products-example-ddd
 
 go 1.17
