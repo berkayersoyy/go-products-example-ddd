@@ -1,7 +1,9 @@
 package domain
 
-type Error interface {
-	Error() string
-	ErrorType() string
-	Data() interface{}
-}
+import "errors"
+
+var (
+	ErrInternal = errors.New("internal")
+	ErrNotFound = errors.New("not found")
+	ErrConflict = errors.New("conflict")
+)

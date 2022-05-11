@@ -9,3 +9,10 @@ type UserHandler interface {
 	UpdateUser(c *gin.Context)
 	DeleteUser(c *gin.Context)
 }
+
+type UserHandlerDynamoDb interface {
+	Update(c *gin.Context)
+	Find(c *gin.Context)
+	Insert(c *gin.Context)
+	Delete(c *gin.Context)
+}

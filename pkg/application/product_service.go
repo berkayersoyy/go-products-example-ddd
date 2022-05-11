@@ -2,25 +2,28 @@ package application
 
 import "github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 
-type userService struct {
-	UserRepository domain.UserRepository
+type productService struct {
+	ProductRepository domain.ProductRepository
 }
 
-func ProvideUserService(u domain.UserRepository) domain.UserService {
-	return &userService{UserRepository: u}
+func ProvideProductService(p domain.ProductRepository) domain.ProductService {
+	return &productService{ProductRepository: p}
 }
-func (u *userService) GetAllUsers() []domain.User {
-	return u.UserRepository.GetAllUsers()
+
+func (p *productService) GetAllProducts() []domain.Product {
+	return p.ProductRepository.GetAllProducts()
 }
-func (u *userService) GetUserByID(id uint) domain.User {
-	return u.UserRepository.GetUserByID(id)
+
+func (p *productService) GetProductByID(id uint) domain.Product {
+	return p.ProductRepository.GetProductByID(id)
 }
-func (u *userService) AddUser(user domain.User) domain.User {
-	return u.UserRepository.AddUser(user)
+
+func (p *productService) AddProduct(product domain.Product) domain.Product {
+	p.ProductRepository.AddProduct(product)
+
+	return product
 }
-func (u *userService) GetUserByUsername(username string) domain.User {
-	return u.UserRepository.GetUserByUsername(username)
-}
-func (u *userService) DeleteUser(user domain.User) {
-	u.UserRepository.DeleteUser(user)
+
+func (p *productService) DeleteProduct(product domain.Product) {
+	p.ProductRepository.DeleteProduct(product)
 }

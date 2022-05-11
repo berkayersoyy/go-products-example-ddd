@@ -2,103 +2,149 @@ package dynamodb
 
 import (
 	"context"
-	"errors"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/berkayersoyy/go-products-example-ddd/pkg/application/util/config"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 	"log"
+	"strconv"
+	"time"
 )
 
 type userRepository struct {
-	db DynamoConnection
+	Timeout time.Duration
+	client  *dynamodb.DynamoDB
 }
 
-func ProvideUserRepository(db DynamoConnection) domain.UserRepositoryCtx {
-	return &userRepository{db: db}
+func ProvideUserRepository(session *session.Session, Timeout time.Duration) domain.UserRepositoryCtx {
+	return userRepository{Timeout: Timeout, client: dynamodb.New(session)}
 }
-func (u *userRepository) GetAllUsers(ctx context.Context) ([]domain.User, error) {
-	return []domain.User{}, nil
-}
+func (u userRepository) Insert(ctx context.Context, user domain.User) error {
+	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
+	defer cancel()
 
-func (u *userRepository) GetUserByID(ctx context.Context, id uint) (domain.User, error) {
-	input := &dynamodb.GetItemInput{
-		TableName: aws.String("users"),
-		Key: map[string]*dynamodb.AttributeValue{
-			"id": {S: aws.String(string(id))},
-		},
-	}
-	res, err := u.db.GetItem(ctx, input)
-	if err != nil {
-		log.Println(err)
-		return domain.User{}, err
-	}
-	if res.Item == nil {
-		return domain.User{}, errors.New("Not Found")
-	}
-	var user domain.User
-	er := dynamodbattribute.UnmarshalMap(res.Item, &user)
-	if er != nil {
-		log.Println(er)
-		return domain.User{}, er
-	}
-	return user, nil
-}
-func (u *userRepository) GetUserByUsername(ctx context.Context, username string) (domain.User, error) {
-	input := &dynamodb.GetItemInput{
-		TableName: aws.String("users"),
-		Key: map[string]*dynamodb.AttributeValue{
-			"username": {S: aws.String(username)},
-		},
-	}
-	res, err := u.db.GetItem(ctx, input)
-	if err != nil {
-		log.Println(err)
-		return domain.User{}, err
-	}
-	if res.Item == nil {
-		return domain.User{}, errors.New("Not Found")
-	}
-	var user domain.User
-	er := dynamodbattribute.UnmarshalMap(res.Item, &user)
-	if er != nil {
-		log.Println(er)
-		return domain.User{}, er
-	}
-	return user, nil
-}
-
-func (u *userRepository) AddUser(ctx context.Context, user domain.User) error {
 	item, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
 		log.Println(err)
-		return err
+		return domain.ErrInternal
 	}
+
 	input := &dynamodb.PutItemInput{
-		TableName:                aws.String("users"),
-		Item:                     item,
-		ExpressionAttributeNames: map[string]*string{"#id": aws.String("id")},
-		ConditionExpression:      aws.String("attribute_not_exists(#id)"),
+		TableName: aws.String("users"),
+		Item:      item,
+		ExpressionAttributeNames: map[string]*string{
+			"#id": aws.String("id"),
+		},
+		ConditionExpression: aws.String("attribute_not_exists(#id)"),
 	}
-	_, err = u.db.PutItem(ctx, input)
-	if err != nil {
+
+	if _, err := u.client.PutItemWithContext(ctx, input); err != nil {
 		log.Println(err)
-		return err
+
+		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
+			return domain.ErrConflict
+		}
+
+		return domain.ErrInternal
 	}
+
 	return nil
 }
 
-func (u *userRepository) DeleteUser(ctx context.Context, user domain.User) error {
+func (u userRepository) Find(ctx context.Context, id uint) (domain.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
+	defer cancel()
+
+	input := &dynamodb.GetItemInput{
+		TableName: aws.String("users"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(strconv.FormatUint(uint64(id), 10))},
+		},
+	}
+
+	res, err := u.client.GetItemWithContext(ctx, input)
+	if err != nil {
+		log.Println(err)
+
+		return domain.User{}, domain.ErrInternal
+	}
+
+	if res.Item == nil {
+		return domain.User{}, domain.ErrNotFound
+	}
+
+	var user domain.User
+	if err := dynamodbattribute.UnmarshalMap(res.Item, &user); err != nil {
+		log.Println(err)
+
+		return domain.User{}, domain.ErrInternal
+	}
+
+	return user, nil
+}
+
+func (u userRepository) Delete(ctx context.Context, id uint) error {
+	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
+	defer cancel()
+
 	input := &dynamodb.DeleteItemInput{
 		TableName: aws.String("users"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"id": {S: aws.String(string(user.ID))},
+			"id": {S: aws.String(strconv.FormatUint(uint64(id), 10))},
 		},
 	}
-	_, err := u.db.DeleteItem(ctx, input)
-	if err != nil {
+
+	if _, err := u.client.DeleteItemWithContext(ctx, input); err != nil {
 		log.Println(err)
-		return errors.New("Delete Failed")
+
+		return domain.ErrInternal
 	}
+
 	return nil
+}
+
+func (u userRepository) Update(ctx context.Context, user domain.User) error {
+	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
+	defer cancel()
+
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String("users"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {S: aws.String(strconv.FormatUint(uint64(user.ID), 10))},
+		},
+		ExpressionAttributeNames: map[string]*string{
+			"#username": aws.String("username"),
+			"#password": aws.String("password"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":name":     {S: aws.String(user.Username)},
+			":password": {N: aws.String(user.Password)},
+		},
+		UpdateExpression: aws.String("set #id = :id, #username = :username, #password = :password"),
+		ReturnValues:     aws.String("UPDATED_NEW"),
+	}
+
+	if _, err := u.client.UpdateItemWithContext(ctx, input); err != nil {
+		log.Println(err)
+
+		return domain.ErrInternal
+	}
+
+	return nil
+}
+func New(config config.Config) (*session.Session, error) {
+	return session.NewSessionWithOptions(
+		session.Options{
+			Config: aws.Config{
+				Credentials:      credentials.NewStaticCredentials(config.ID, config.AccessSecret, ""),
+				Region:           aws.String(config.Region),
+				Endpoint:         aws.String(config.EndpointUrl),
+				S3ForcePathStyle: aws.Bool(true),
+			},
+			Profile: config.Profile,
+		},
+	)
 }

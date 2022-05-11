@@ -3,6 +3,7 @@ package mysql
 import (
 	"fmt"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"os"
 )

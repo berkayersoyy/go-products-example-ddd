@@ -10,9 +10,8 @@ type UserRepository interface {
 	DeleteUser(user User)
 }
 type UserRepositoryCtx interface {
-	GetAllUsers(ctx context.Context) ([]User, error)
-	GetUserByID(ctx context.Context, id uint) (User, error)
-	GetUserByUsername(ctx context.Context, username string) (User, error)
-	AddUser(ctx context.Context, user User) error
-	DeleteUser(ctx context.Context, user User) error
+	Update(ctx context.Context, user User) error
+	Find(ctx context.Context, id uint) (User, error)
+	Insert(ctx context.Context, user User) error
+	Delete(ctx context.Context, id uint) error
 }
