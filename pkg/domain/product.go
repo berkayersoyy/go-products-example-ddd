@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+)
 import _ "github.com/go-playground/validator/v10"
 
 // swagger:model Product
@@ -36,4 +39,25 @@ func ToProductDTOs(products []Product) []ProductDTO {
 	}
 
 	return productdtos
+}
+
+type ProductHandler interface {
+	GetAllProducts(c *gin.Context)
+	GetProductByID(c *gin.Context)
+	AddProduct(c *gin.Context)
+	UpdateProduct(c *gin.Context)
+	DeleteProduct(c *gin.Context)
+}
+type ProductRepository interface {
+	GetAllProducts() []Product
+	GetProductByID(id uint) Product
+	AddProduct(product Product) Product
+	DeleteProduct(product Product)
+}
+
+type ProductService interface {
+	GetAllProducts() []Product
+	GetProductByID(id uint) Product
+	AddProduct(product Product) Product
+	DeleteProduct(product Product)
 }

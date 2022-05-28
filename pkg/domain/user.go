@@ -1,6 +1,10 @@
 package domain
 
-import "github.com/jinzhu/gorm"
+import (
+	"context"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+)
 
 // swagger:model User
 type User struct {
@@ -22,7 +26,7 @@ func ToUser(userDTO UserDTO) User {
 }
 
 func ToUserDTO(user User) UserDTO {
-	return UserDTO{ID: user.ID, Username: user.Password, Password: user.Password}
+	return UserDTO{ID: user.ID, Username: user.Username, Password: user.Password}
 }
 
 func ToUserDTOs(users []User) []UserDTO {
@@ -33,4 +37,46 @@ func ToUserDTOs(users []User) []UserDTO {
 	}
 
 	return userdtos
+}
+
+type UserHandler interface {
+	GetAllUsers(c *gin.Context)
+	GetUserByID(c *gin.Context)
+	AddUser(c *gin.Context)
+	UpdateUser(c *gin.Context)
+	DeleteUser(c *gin.Context)
+}
+
+type UserHandlerDynamoDb interface {
+	Update(c *gin.Context)
+	Find(c *gin.Context)
+	Insert(c *gin.Context)
+	Delete(c *gin.Context)
+}
+type UserRepository interface {
+	GetAllUsers() []User
+	GetUserByID(id uint) User
+	GetUserByUsername(username string) User
+	AddUser(user User) User
+	DeleteUser(user User)
+}
+type UserRepositoryCtx interface {
+	Update(ctx context.Context, user User) error
+	Find(ctx context.Context, id uint) (User, error)
+	Insert(ctx context.Context, user User) error
+	Delete(ctx context.Context, id uint) error
+}
+type UserService interface {
+	GetAllUsers() []User
+	GetUserByID(id uint) User
+	AddUser(user User) User
+	GetUserByUsername(username string) User
+	DeleteUser(User)
+}
+
+type UserServiceDynamoDb interface {
+	Update(ctx context.Context, user User) error
+	Find(ctx context.Context, id uint) (User, error)
+	Insert(ctx context.Context, user User) error
+	Delete(ctx context.Context, id uint) error
 }
