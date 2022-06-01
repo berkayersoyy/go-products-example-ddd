@@ -31,7 +31,7 @@ func InitDb() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	//TODO dsn refactoring
 	dsn := os.Getenv("MYSQL_DSN")
 	ctx := context.Background()
 	var db *gorm.DB
