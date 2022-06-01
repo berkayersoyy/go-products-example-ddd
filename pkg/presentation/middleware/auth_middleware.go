@@ -10,9 +10,6 @@ import (
 
 func AuthorizeJWTMiddleware(a domain.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// const BEARER_SCHEMA = "Bearer"
-		// authHeader := c.GetHeader("Authorization")
-		// tokenString := authHeader[len(BEARER_SCHEMA)+1:]
 		token, err := a.ValidateToken(c.Request)
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)

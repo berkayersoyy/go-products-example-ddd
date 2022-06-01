@@ -3,12 +3,14 @@ package application
 import (
 	"errors"
 	"fmt"
-	"github.com/berkayersoyy/go-products-example-ddd/pkg/application/util/config"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-redis/redis/v7"
+	"github.com/joho/godotenv"
 	"github.com/twinj/uuid"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -32,16 +34,17 @@ func ExtractToken(r *http.Request) string {
 }
 
 func (a *authService) ValidateToken(r *http.Request) (*jwt.Token, error) {
-	conf, err := config.LoadConfig("./")
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+	accessSecret := os.Getenv("ACCESS_SECRET")
 	tokenString := ExtractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(conf.AccessSecret), nil
+		return []byte(accessSecret), nil
 	})
 	if err != nil {
 		return nil, err
@@ -59,10 +62,12 @@ func (a *authService) TokenValid(r *http.Request) error {
 	return nil
 }
 func (a *authService) CreateToken(userid uint) (*domain.TokenDetails, error) {
-	conf, err := config.LoadConfig("./")
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+	accessSecret := os.Getenv("ACCESS_SECRET")
+	refreshSecret := os.Getenv("REFRESH_SECRET")
 	td := &domain.TokenDetails{}
 	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
 	td.AccessUuid = uuid.NewV4().String()
@@ -77,7 +82,7 @@ func (a *authService) CreateToken(userid uint) (*domain.TokenDetails, error) {
 	atClaims["user_id"] = userid
 	atClaims["exp"] = td.AtExpires
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-	td.AccessToken, err = at.SignedString([]byte(conf.AccessSecret))
+	td.AccessToken, err = at.SignedString([]byte(accessSecret))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +92,7 @@ func (a *authService) CreateToken(userid uint) (*domain.TokenDetails, error) {
 	rtClaims["user_id"] = userid
 	rtClaims["exp"] = td.RtExpires
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
-	td.RefreshToken, err = rt.SignedString([]byte(conf.RefreshSecret))
+	td.RefreshToken, err = rt.SignedString([]byte(refreshSecret))
 	if err != nil {
 		return nil, err
 	}

@@ -2,11 +2,13 @@ package http
 
 import (
 	"fmt"
-	"github.com/berkayersoyy/go-products-example-ddd/pkg/application/util/config"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -70,16 +72,17 @@ func (a *authHandler) Refresh(c *gin.Context) {
 	refreshToken := mapToken["refresh_token"]
 
 	//verify the token
-	conf, err := config.LoadConfig("./")
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+	refreshSecret := os.Getenv("REFRESH_SECRET")
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		//Make sure that the token method conform to "SigningMethodHMAC"
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(conf.RefreshSecret), nil
+		return []byte(refreshSecret), nil
 	})
 	//if there is an error, the token must have expired
 	if err != nil {
