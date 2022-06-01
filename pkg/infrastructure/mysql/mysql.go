@@ -1,11 +1,16 @@
 package mysql
 
 import (
+	"context"
 	"fmt"
-	"github.com/berkayersoyy/go-products-example-ddd/pkg/application/util/config"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
+	"github.com/sethvargo/go-retry"
+	"log"
+	"os"
+	"time"
 )
 
 type mysqlClient struct {
@@ -22,27 +27,23 @@ func (m *mysqlClient) GetClient() *gorm.DB {
 
 func InitDb() *gorm.DB {
 
-	conf, err := config.LoadConfig("./")
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	a := conf.MysqlDSN
-	fmt.Println(a)
-	db, err := gorm.Open("mysql", conf.MysqlDSN)
-	//ctx := context.Background()
-	//if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
-	//	if err := db.DB().Ping(); err != nil {
-	//		fmt.Println(err)
-	//
-	//		return retry.RetryableError(err)
-	//	}
-	//	return nil
-	//}); err != nil {
-	//	log.Fatal(err)
-	//}
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
+
+	dsn := os.Getenv("MYSQL_DSN")
+	ctx := context.Background()
+	var db *gorm.DB
+	if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
+		db, err = gorm.Open("mysql", dsn)
+		if err != nil {
+			fmt.Println(err)
+			return retry.RetryableError(err)
+		}
+		return nil
+	}); err != nil {
+		log.Fatal(err)
 	}
 
 	db.DB().SetMaxOpenConns(10)

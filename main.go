@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	_ "github.com/berkayersoyy/go-products-example-ddd/docs"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/application"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/infrastructure/mysql"
@@ -9,8 +11,11 @@ import (
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/presentation/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/sethvargo/go-retry"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
+	"log"
+	"time"
 )
 
 func setup(db *gorm.DB) *gin.Engine {
@@ -86,6 +91,7 @@ func setup(db *gorm.DB) *gin.Engine {
 // @BasePath /
 // @schemes http
 func main() {
+	ctx := context.Background()
 	dbClient := mysql.ProvideMysqlClient()
 	db := dbClient.GetClient()
 	defer db.Close()
@@ -96,8 +102,14 @@ func main() {
 	//}
 
 	r := setup(db)
-	err := r.Run()
-	if err != nil {
-		panic(err)
+	if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
+		err := r.Run()
+		if err != nil {
+			fmt.Println(err)
+			return retry.RetryableError(err)
+		}
+		return nil
+	}); err != nil {
+		log.Fatal(err)
 	}
 }
