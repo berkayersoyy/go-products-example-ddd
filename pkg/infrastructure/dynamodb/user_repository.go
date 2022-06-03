@@ -2,7 +2,6 @@ package dynamodb
 
 import (
 	"context"
-	"errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -13,12 +12,6 @@ import (
 	"log"
 	"strconv"
 	"time"
-)
-
-var (
-	ErrInternal = errors.New("internal")
-	ErrNotFound = errors.New("not found")
-	ErrConflict = errors.New("conflict")
 )
 
 type userRepository struct {
@@ -36,7 +29,7 @@ func (u userRepository) Insert(ctx context.Context, user domain.User) error {
 	item, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
 		log.Println(err)
-		return ErrInternal
+		return domain.ErrInternal
 	}
 
 	input := &dynamodb.PutItemInput{
@@ -52,10 +45,10 @@ func (u userRepository) Insert(ctx context.Context, user domain.User) error {
 		log.Println(err)
 
 		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
-			return ErrConflict
+			return domain.ErrConflict
 		}
 
-		return ErrInternal
+		return domain.ErrInternal
 	}
 
 	return nil
@@ -76,18 +69,18 @@ func (u userRepository) Find(ctx context.Context, id uint) (domain.User, error) 
 	if err != nil {
 		log.Println(err)
 
-		return domain.User{}, ErrInternal
+		return domain.User{}, domain.ErrInternal
 	}
 
 	if res.Item == nil {
-		return domain.User{}, ErrNotFound
+		return domain.User{}, domain.ErrNotFound
 	}
 
 	var user domain.User
 	if err := dynamodbattribute.UnmarshalMap(res.Item, &user); err != nil {
 		log.Println(err)
 
-		return domain.User{}, ErrInternal
+		return domain.User{}, domain.ErrInternal
 	}
 
 	return user, nil
@@ -107,7 +100,7 @@ func (u userRepository) Delete(ctx context.Context, id uint) error {
 	if _, err := u.client.DeleteItemWithContext(ctx, input); err != nil {
 		log.Println(err)
 
-		return ErrInternal
+		return domain.ErrInternal
 	}
 
 	return nil
@@ -137,7 +130,7 @@ func (u userRepository) Update(ctx context.Context, user domain.User) error {
 	if _, err := u.client.UpdateItemWithContext(ctx, input); err != nil {
 		log.Println(err)
 
-		return ErrInternal
+		return domain.ErrInternal
 	}
 
 	return nil
