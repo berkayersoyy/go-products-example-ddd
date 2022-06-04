@@ -56,7 +56,8 @@ func (a *authService) TokenValid(r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	if _, ok := token.Claims.(jwt.Claims); !ok || !token.Valid {
+	claims := make(jwt.MapClaims)
+	if err := claims.Valid(); err != nil || !token.Valid {
 		return err
 	}
 	return nil
@@ -119,8 +120,8 @@ func (a *authService) ExtractTokenMetadata(r *http.Request) (*domain.AccessDetai
 	if err != nil {
 		return nil, err
 	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
+	claims := make(jwt.MapClaims)
+	if err := claims.Valid(); err != nil && token.Valid {
 		accessUuid, ok := claims["access_uuid"].(string)
 		if !ok {
 			return nil, err
