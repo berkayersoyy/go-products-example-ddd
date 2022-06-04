@@ -91,13 +91,13 @@ func (a *authHandler) Refresh(c *gin.Context) {
 		return
 	}
 	//is token valid?
-	if _, ok := token.Claims.(jwt.Claims); !ok && !token.Valid {
+	claims := make(jwt.MapClaims)
+	if err := claims.Valid(); err != nil && !token.Valid {
 		c.JSON(http.StatusUnauthorized, err)
 		return
 	}
 	//Since token is valid, get the uuid:
-	claims, ok := token.Claims.(jwt.MapClaims) //the token claims should conform to MapClaims
-	if ok && token.Valid {
+	if err := claims.Valid(); err != nil && token.Valid {
 		refreshUuid, ok := claims["refresh_uuid"].(string) //convert the interface to string
 		if !ok {
 			c.JSON(http.StatusUnprocessableEntity, err)
