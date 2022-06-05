@@ -83,5 +83,4 @@ jobs:
         with:
             platforms: linux/amd64,linux/arm64,linux/386
             push: true
-            tags: ${{ steps.docker_meta.outputs.tags }}
-            labels: ${{ steps.docker_meta.outputs.labels }}
+            tags: berkayersoy/go-products-example-ddd:${{ steps.docker_meta.outputs.tags }}
