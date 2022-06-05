@@ -53,6 +53,9 @@ jobs:
           echo "##[set-output name=version_tag;]$GITHUB_REPOSITORY:${GITHUB_REF#$"refs/tags/v"}"
           echo "##[set-output name=latest_tag;]$GITHUB_REPOSITORY:latest"
 
+      - name: What
+        run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -69,9 +72,10 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          push: true
-          tags: |
-            ${{steps.version_step.outputs.version_tag}}
-            ${{steps.version_step.outputs.latest_tag}}
-          build-args: |
-            ${{steps.version_step.outputs.version}}
+            context: ./docker
+            file: ./docker/Dockerfile
+            platforms: linux/amd64,linux/arm64,linux/386
+            push: true
+            tags: berkayersoyy/go-products-example-ddd:${{ env.BRANCH }}
+            build-args: |
+              BRANCH=${{ env.BRANCH }}
