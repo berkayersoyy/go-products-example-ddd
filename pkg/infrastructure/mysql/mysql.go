@@ -13,10 +13,12 @@ import (
 	"time"
 )
 
+//mysqlClient Mysql client
 type mysqlClient struct {
 	SingletonMysql *gorm.DB
 }
 
+//ProvideMysqlClient Provide Mysql Client
 func ProvideMysqlClient() domain.MysqlClient {
 	return &mysqlClient{SingletonMysql: InitDb()}
 }
@@ -25,6 +27,7 @@ func (m *mysqlClient) GetClient() *gorm.DB {
 	return m.SingletonMysql
 }
 
+//InitDb Init db
 func InitDb() *gorm.DB {
 
 	err := godotenv.Load()

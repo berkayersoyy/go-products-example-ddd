@@ -1,10 +1,11 @@
 package domain
 
+//TokenDetails Token details
 type TokenDetails struct {
 	AccessToken  string
 	RefreshToken string
-	AccessUuid   string
-	RefreshUuid  string
+	AccessUUID   string
+	RefreshUUID  string
 	AtExpires    int64
 	RtExpires    int64
 }

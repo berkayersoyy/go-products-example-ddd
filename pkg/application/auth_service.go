@@ -73,15 +73,15 @@ func (a *authService) CreateToken(userid uint) (*domain.TokenDetails, error) {
 	refreshSecret := os.Getenv("REFRESH_SECRET")
 	td := &domain.TokenDetails{}
 	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
-	td.AccessUuid = uuid.NewV4().String()
+	td.AccessUUID = uuid.NewV4().String()
 
 	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
-	td.RefreshUuid = td.AccessUuid + "++" + strconv.Itoa(int(userid))
+	td.RefreshUUID = td.AccessUUID + "++" + strconv.Itoa(int(userid))
 
 	//Creating Access Token
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true
-	atClaims["access_uuid"] = td.AccessUuid
+	atClaims["access_uuid"] = td.AccessUUID
 	atClaims["user_id"] = userid
 	atClaims["exp"] = td.AtExpires
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
@@ -91,7 +91,7 @@ func (a *authService) CreateToken(userid uint) (*domain.TokenDetails, error) {
 	}
 	//Creating Refresh Token
 	rtClaims := jwt.MapClaims{}
-	rtClaims["refresh_uuid"] = td.RefreshUuid
+	rtClaims["refresh_uuid"] = td.RefreshUUID
 	rtClaims["user_id"] = userid
 	rtClaims["exp"] = td.RtExpires
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
@@ -107,11 +107,11 @@ func (a *authService) CreateAuth(userid uint, td *domain.TokenDetails) error {
 	rt := time.Unix(td.RtExpires, 0)
 	now := time.Now()
 
-	errAccess := a.Client.Set(td.AccessUuid, strconv.Itoa(int(userid)), at.Sub(now)).Err()
+	errAccess := a.Client.Set(td.AccessUUID, strconv.Itoa(int(userid)), at.Sub(now)).Err()
 	if errAccess != nil {
 		return errAccess
 	}
-	errRefresh := a.Client.Set(td.RefreshUuid, strconv.Itoa(int(userid)), rt.Sub(now)).Err()
+	errRefresh := a.Client.Set(td.RefreshUUID, strconv.Itoa(int(userid)), rt.Sub(now)).Err()
 	if errRefresh != nil {
 		return errRefresh
 	}

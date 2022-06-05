@@ -9,6 +9,7 @@ type userRepository struct {
 	DB *gorm.DB
 }
 
+//ProvideUserRepository Provide user repository
 func ProvideUserRepository(DB *gorm.DB) domain.UserRepository {
 	return &userRepository{DB: DB}
 }

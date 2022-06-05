@@ -9,6 +9,7 @@ type productRepository struct {
 	DB *gorm.DB
 }
 
+//ProvideProductRepository Provide product repository
 func ProvideProductRepository(DB *gorm.DB) domain.ProductRepository {
 	return &productRepository{DB: DB}
 }

@@ -12,7 +12,7 @@ type Config struct {
 	AccessSecret  string        `mapstructure:"ACCESS_SECRET"`
 	RefreshSecret string        `mapstructure:"REFRESH_SECRET"`
 	Timeout       time.Duration `mapstructure:"TIMEOUT"`
-	EndpointUrl   string        `mapstructure:"EndpointUrl"`
+	EndpointURL   string        `mapstructure:"EndpointUrl"`
 	Region        string        `mapstructure:"Region"`
 	ID            string        `mapstructure:"ID"`
 	SecretKey     string        `mapstructure:"SecretKey"`

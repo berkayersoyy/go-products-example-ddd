@@ -11,10 +11,12 @@ import (
 	"time"
 )
 
+//redisClient Redis client
 type redisClient struct {
 	SingletonRedis *redis.Client
 }
 
+//ProvideRedisClient Provide redis client
 func ProvideRedisClient() domain.RedisClient {
 	return &redisClient{SingletonRedis: InitRedis()}
 }
@@ -22,6 +24,7 @@ func (r *redisClient) GetClient() *redis.Client {
 	return r.SingletonRedis
 }
 
+//InitRedis Init redis
 func InitRedis() *redis.Client {
 	err := godotenv.Load()
 	if err != nil {

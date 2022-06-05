@@ -19,6 +19,7 @@ type userRepository struct {
 	client  *dynamodb.DynamoDB
 }
 
+//ProvideUserRepository Provide user repository
 func ProvideUserRepository(session *session.Session, Timeout time.Duration) domain.UserRepositoryCtx {
 	return userRepository{Timeout: Timeout, client: dynamodb.New(session)}
 }
@@ -141,7 +142,7 @@ func New(config config.Config) (*session.Session, error) {
 			Config: aws.Config{
 				Credentials:      credentials.NewStaticCredentials(config.ID, config.AccessSecret, ""),
 				Region:           aws.String(config.Region),
-				Endpoint:         aws.String(config.EndpointUrl),
+				Endpoint:         aws.String(config.EndpointURL),
 				S3ForcePathStyle: aws.Bool(true),
 			},
 			Profile: config.Profile,

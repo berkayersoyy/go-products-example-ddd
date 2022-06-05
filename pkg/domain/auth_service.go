@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+//AuthService Auth service
 type AuthService interface {
 	ValidateToken(r *http.Request) (*jwt.Token, error)
 	TokenValid(r *http.Request) error

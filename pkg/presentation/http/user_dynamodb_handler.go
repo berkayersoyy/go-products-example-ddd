@@ -9,10 +9,12 @@ import (
 	"strconv"
 )
 
+//userHandlerDynamoDb User handler dynamodb
 type userHandlerDynamoDb struct {
 	userService domain.UserServiceDynamoDb
 }
 
+//ProvideUserHandlerDynamoDb Provide user handler dynamodb
 func ProvideUserHandlerDynamoDb(u domain.UserServiceDynamoDb) domain.UserHandlerDynamoDb {
 	return userHandlerDynamoDb{userService: u}
 }
@@ -113,7 +115,10 @@ func (u userHandlerDynamoDb) Update(c *gin.Context) {
 	}
 	user.Username = userDTO.Username
 	user.Password = userDTO.Password
-	u.userService.Insert(c, user)
+	err = u.userService.Insert(c, user)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+	}
 	c.Status(http.StatusOK)
 }
 

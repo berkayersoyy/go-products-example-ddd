@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+//AuthorizeJWTMiddleware Jwt middleware
 func AuthorizeJWTMiddleware(a domain.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := a.ValidateToken(c.Request)

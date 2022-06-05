@@ -9,10 +9,12 @@ import (
 	"strconv"
 )
 
+//productHandler Product handler
 type productHandler struct {
 	ProductService domain.ProductService
 }
 
+//ProvideProductAPI Provide product api
 func ProvideProductAPI(p domain.ProductService) domain.ProductHandler {
 	return &productHandler{ProductService: p}
 }
