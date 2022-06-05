@@ -20,10 +20,12 @@ type authService struct {
 	Client *redis.Client
 }
 
+// ProvideAuthService Provides auth service
 func ProvideAuthService(c *redis.Client) domain.AuthService {
 	return &authService{Client: c}
 }
 
+// ExtractToken Extract token
 func ExtractToken(r *http.Request) string {
 	bearToken := r.Header.Get("Authorization")
 	strArr := strings.Split(bearToken, " ")
@@ -122,36 +124,36 @@ func (a *authService) ExtractTokenMetadata(r *http.Request) (*domain.AccessDetai
 	}
 	claims := make(jwt.MapClaims)
 	if err := claims.Valid(); err != nil && token.Valid {
-		accessUuid, ok := claims["access_uuid"].(string)
+		accessUUID, ok := claims["access_uuid"].(string)
 		if !ok {
 			return nil, err
 		}
-		userId, err := strconv.Atoi(fmt.Sprintf("%.f", claims["user_id"]))
+		userID, err := strconv.Atoi(fmt.Sprintf("%.f", claims["user_id"]))
 		if err != nil {
 			return nil, err
 		}
 		return &domain.AccessDetails{
-			AccessUuid: accessUuid,
-			UserId:     userId,
+			AccessUuid: accessUUID,
+			UserId:     userID,
 		}, nil
 	}
 	return nil, err
 }
-func (a *authService) DeleteAuth(givenUuid string) (int64, error) {
-	deleted, err := a.Client.Del(givenUuid).Result()
+func (a *authService) DeleteAuth(givenUUID string) (int64, error) {
+	deleted, err := a.Client.Del(givenUUID).Result()
 	if err != nil {
 		return 0, err
 	}
 	return deleted, nil
 }
 func (a *authService) DeleteTokens(authD *domain.AccessDetails) error {
-	refreshUuid := fmt.Sprintf("%s++%d", authD.AccessUuid, authD.UserId)
+	refreshUUID := fmt.Sprintf("%s++%d", authD.AccessUuid, authD.UserId)
 	deletedAt, err := a.Client.Del(authD.AccessUuid).Result()
 	if err != nil {
 		return err
 	}
 	//delete refresh token
-	deletedRt, err := a.Client.Del(refreshUuid).Result()
+	deletedRt, err := a.Client.Del(refreshUUID).Result()
 	if err != nil {
 		return err
 	}

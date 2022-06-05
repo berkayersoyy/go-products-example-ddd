@@ -6,6 +6,7 @@ type productService struct {
 	ProductRepository domain.ProductRepository
 }
 
+// ProvideProductService Provide product service
 func ProvideProductService(p domain.ProductRepository) domain.ProductService {
 	return &productService{ProductRepository: p}
 }

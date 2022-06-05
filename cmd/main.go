@@ -21,12 +21,12 @@ import (
 func setup(db *gorm.DB) *gin.Engine {
 	productRepository := mysql.ProvideProductRepository(db)
 	productService := application.ProvideProductService(productRepository)
-	productApi := http.ProvideProductAPI(productService)
+	productAPI := http.ProvideProductAPI(productService)
 
 	//mysql
 	userRepository := mysql.ProvideUserRepository(db)
 	userService := application.ProvideUserService(userRepository)
-	userApi := http.ProvideUserAPI(userService)
+	userAPI := http.ProvideuserAPI(userService)
 
 	//dynamodb
 	//userRepositoryDynamoDb := dyDb.ProvideUserRepository(session, duration)
@@ -35,7 +35,7 @@ func setup(db *gorm.DB) *gin.Engine {
 
 	r := redis.ProvideRedisClient()
 	authService := application.ProvideAuthService(r.GetClient())
-	authApi := http.ProvideAuthAPI(authService, userService)
+	authAPI := http.ProvideAuthAPI(authService, userService)
 
 	router := gin.Default()
 
@@ -44,19 +44,19 @@ func setup(db *gorm.DB) *gin.Engine {
 
 	products.Use(middleware.AuthorizeJWTMiddleware(authService))
 
-	products.GET("/products", productApi.GetAllProducts)
-	products.POST("/products", productApi.AddProduct)
-	products.GET("/products/:id", productApi.GetProductByID)
-	products.DELETE("/products/:id", productApi.DeleteProduct)
-	products.PUT("/products/:id", productApi.UpdateProduct)
+	products.GET("/products", productAPI.GetAllProducts)
+	products.POST("/products", productAPI.AddProduct)
+	products.GET("/products/:id", productAPI.GetProductByID)
+	products.DELETE("/products/:id", productAPI.DeleteProduct)
+	products.PUT("/products/:id", productAPI.UpdateProduct)
 
 	//users mysql
 	users := router.Group("/v1")
-	users.GET("/users", userApi.GetAllUsers)
-	users.POST("/users", userApi.AddUser)
-	users.GET("/users/:id", userApi.GetUserByID)
-	users.DELETE("/users/:id", userApi.DeleteUser)
-	users.PUT("/users/:id", userApi.UpdateUser)
+	users.GET("/users", userAPI.GetAllUsers)
+	users.POST("/users", userAPI.AddUser)
+	users.GET("/users/:id", userAPI.GetUserByID)
+	users.DELETE("/users/:id", userAPI.DeleteUser)
+	users.PUT("/users/:id", userAPI.UpdateUser)
 
 	//users dynamodb
 	//usersDynamoDb := router.Group("/v1")
@@ -67,7 +67,7 @@ func setup(db *gorm.DB) *gin.Engine {
 
 	//auth
 	auth := router.Group("/v1")
-	auth.POST("/login", authApi.Login)
+	auth.POST("/login", authAPI.Login)
 
 	//swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

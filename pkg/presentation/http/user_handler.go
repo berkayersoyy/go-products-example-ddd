@@ -13,7 +13,7 @@ type userHandler struct {
 	UserService domain.UserService
 }
 
-func ProvideUserAPI(u domain.UserService) domain.UserHandler {
+func ProvideuserAPI(u domain.UserService) domain.UserHandler {
 	return &userHandler{UserService: u}
 }
 
