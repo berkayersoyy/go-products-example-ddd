@@ -81,7 +81,7 @@ func setup(db *gorm.DB) *gin.Engine {
 
 // @title Gin Swagger Example API
 // @version 1.0
-// @description This is a sample server server.
+// @description This is a sample server.
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name API Support
