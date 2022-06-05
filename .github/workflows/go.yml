@@ -53,7 +53,7 @@ jobs:
           echo "##[set-output name=version_tag;]$GITHUB_REPOSITORY:${GITHUB_REF#$"refs/tags/v"}"
           echo "##[set-output name=latest_tag;]$GITHUB_REPOSITORY:latest"
 
-      - name: What
+      - name: Set up Branch
         run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Set up QEMU
@@ -74,6 +74,6 @@ jobs:
         with:
             platforms: linux/amd64,linux/arm64,linux/386
             push: true
-            tags: berkayersoyy/go-products-example-ddd:${{ env.BRANCH }}
+            tags: berkayersoy/go-products-example-ddd:${{ env.BRANCH }}
             build-args: |
               BRANCH=${{ env.BRANCH }}
