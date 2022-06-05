@@ -94,6 +94,7 @@ func setup(db *gorm.DB) *gin.Engine {
 // @BasePath /
 // @schemes http
 func main() {
+	fmt.Printf("Version: %s", version)
 	ctx := context.Background()
 	dbClient := mysql.ProvideMysqlClient()
 	db := dbClient.GetClient()
