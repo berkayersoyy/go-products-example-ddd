@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-//version
+//version app_version
 var version = "dev"
 
 func setup(db *gorm.DB) *gin.Engine {
