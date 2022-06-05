@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+//ProductValidator validates product
 func ProductValidator() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var product domain.Product

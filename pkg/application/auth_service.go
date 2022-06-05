@@ -133,8 +133,8 @@ func (a *authService) ExtractTokenMetadata(r *http.Request) (*domain.AccessDetai
 			return nil, err
 		}
 		return &domain.AccessDetails{
-			AccessUuid: accessUUID,
-			UserId:     userID,
+			AccessUUID: accessUUID,
+			UserID:     userID,
 		}, nil
 	}
 	return nil, err
@@ -147,8 +147,8 @@ func (a *authService) DeleteAuth(givenUUID string) (int64, error) {
 	return deleted, nil
 }
 func (a *authService) DeleteTokens(authD *domain.AccessDetails) error {
-	refreshUUID := fmt.Sprintf("%s++%d", authD.AccessUuid, authD.UserId)
-	deletedAt, err := a.Client.Del(authD.AccessUuid).Result()
+	refreshUUID := fmt.Sprintf("%s++%d", authD.AccessUUID, authD.UserID)
+	deletedAt, err := a.Client.Del(authD.AccessUUID).Result()
 	if err != nil {
 		return err
 	}
@@ -164,12 +164,12 @@ func (a *authService) DeleteTokens(authD *domain.AccessDetails) error {
 	return nil
 }
 func (a *authService) FetchAuth(authD *domain.AccessDetails) (uint64, error) {
-	userid, err := a.Client.Get(authD.AccessUuid).Result()
+	userid, err := a.Client.Get(authD.AccessUUID).Result()
 	if err != nil {
 		return 0, err
 	}
 	userID, _ := strconv.ParseUint(userid, 10, 64)
-	if uint64(authD.UserId) != userID {
+	if uint64(authD.UserID) != userID {
 		return 0, errors.New("unauthorized")
 	}
 	return userID, nil

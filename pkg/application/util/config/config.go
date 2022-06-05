@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//Config config
 type Config struct {
 	MysqlDSN      string        `mapstructure:"MYSQL_DSN"`
 	RedisHost     string        `mapstructure:"REDIS_HOST"`
@@ -19,6 +20,7 @@ type Config struct {
 	Profile       string        `mapstructure:"Profile"`
 }
 
+//LoadConfig loads config
 func LoadConfig(path string) (config Config, err error) {
 	viper.AddConfigPath(path)
 	viper.SetConfigName("")

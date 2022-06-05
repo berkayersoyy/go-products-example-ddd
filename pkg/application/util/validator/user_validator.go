@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+//UserValidator validates user
 func UserValidator() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user domain.User

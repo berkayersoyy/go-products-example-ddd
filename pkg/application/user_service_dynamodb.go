@@ -9,6 +9,7 @@ type userServiceDynamoDb struct {
 	UserRepository domain.UserRepositoryCtx
 }
 
+//ProvideUserServiceDynamoDb Provide user service via dynamodb
 func ProvideUserServiceDynamoDb(u domain.UserRepositoryCtx) domain.UserServiceDynamoDb {
 	return userServiceDynamoDb{UserRepository: u}
 }

@@ -6,6 +6,7 @@ type userService struct {
 	UserRepository domain.UserRepository
 }
 
+//ProvideUserService Provide user service
 func ProvideUserService(u domain.UserRepository) domain.UserService {
 	return &userService{UserRepository: u}
 }
