@@ -10,6 +10,7 @@ import (
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/presentation/http"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/presentation/middleware"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/sethvargo/go-retry"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -26,7 +27,7 @@ func setup(db *gorm.DB) *gin.Engine {
 	//mysql
 	userRepository := mysql.ProvideUserRepository(db)
 	userService := application.ProvideUserService(userRepository)
-	userAPI := http.ProvideuserAPI(userService)
+	userAPI := http.ProvideUserAPI(userService)
 
 	//dynamodb
 	//userRepositoryDynamoDb := dyDb.ProvideUserRepository(session, duration)

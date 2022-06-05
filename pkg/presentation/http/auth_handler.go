@@ -100,30 +100,30 @@ func (a *authHandler) Refresh(c *gin.Context) {
 	}
 	//Since token is valid, get the uuid:
 	if err := claims.Valid(); err != nil && token.Valid {
-		refreshUuid, ok := claims["refresh_uuid"].(string) //convert the interface to string
+		refreshUUID, ok := claims["refresh_uuid"].(string) //convert the interface to string
 		if !ok {
 			c.JSON(http.StatusUnprocessableEntity, err)
 			return
 		}
-		userId, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["user_id"]), 10, 64)
+		userID, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["user_id"]), 10, 64)
 		if err != nil {
 			c.JSON(http.StatusUnprocessableEntity, "Error occurred")
 			return
 		}
 		//Delete the previous Refresh Token
-		deleted, delErr := a.AuthService.DeleteAuth(refreshUuid)
+		deleted, delErr := a.AuthService.DeleteAuth(refreshUUID)
 		if delErr != nil || deleted == 0 { //if any goes wrong
 			c.JSON(http.StatusUnauthorized, "unauthorized")
 			return
 		}
 		//Create new pairs of refresh and access tokens
-		ts, createErr := a.AuthService.CreateToken(uint(userId))
+		ts, createErr := a.AuthService.CreateToken(uint(userID))
 		if createErr != nil {
 			c.JSON(http.StatusForbidden, createErr.Error())
 			return
 		}
 		//save the tokens metadata to redis
-		saveErr := a.AuthService.CreateAuth(uint(userId), ts)
+		saveErr := a.AuthService.CreateAuth(uint(userID), ts)
 		if saveErr != nil {
 			c.JSON(http.StatusForbidden, saveErr.Error())
 			return

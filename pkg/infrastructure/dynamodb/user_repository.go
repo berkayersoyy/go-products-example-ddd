@@ -136,6 +136,8 @@ func (u userRepository) Update(ctx context.Context, user domain.User) error {
 
 	return nil
 }
+
+//New Returns new
 func New(config config.Config) (*session.Session, error) {
 	return session.NewSessionWithOptions(
 		session.Options{

@@ -87,6 +87,7 @@ type UserService interface {
 	DeleteUser(User)
 }
 
+//UserServiceDynamoDb User_service_dynamodb
 type UserServiceDynamoDb interface {
 	Update(ctx context.Context, user User) error
 	Find(ctx context.Context, id uint) (User, error)
