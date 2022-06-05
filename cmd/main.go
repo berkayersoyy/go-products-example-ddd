@@ -19,6 +19,8 @@ import (
 	"time"
 )
 
+var version = "dev"
+
 func setup(db *gorm.DB) *gin.Engine {
 	productRepository := mysql.ProvideProductRepository(db)
 	productService := application.ProvideProductService(productRepository)

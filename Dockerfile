@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . ./
 
-RUN go build -o /go-products-example-ddd
+RUN go build -o /go-products-example-ddd -ldflags=-X=main.version=${VERSION} main.go
 
 EXPOSE 8080
 
