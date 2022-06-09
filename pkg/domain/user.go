@@ -3,21 +3,26 @@ package domain
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"time"
 )
 
 //User Entity_user
 // swagger:model User
 type User struct {
-	gorm.Model
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	ID        string     `gorm:"primary_key" json:"id"`
+	UUID      string     `json:"uuid"`
+	Username  string     `json:"username" validate:"required"`
+	Password  string     `json:"password" validate:"required"`
+	CreatedAt time.Time  `json:"CreatedAt"`
+	UpdatedAt time.Time  `json:"UpdatedAt"`
+	DeletedAt *time.Time `json:"DeletedAt"`
 }
 
 //UserDTO Dto_user
 // swagger:model UserDTO
 type UserDTO struct {
-	ID       uint   `json:"id,string,omitempty"`
+	UUID     string `json:"uuid"`
+	ID       string `json:"id,string,omitempty"`
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
@@ -30,7 +35,7 @@ func ToUser(userDTO UserDTO) User {
 
 //ToUserDTO To_user_dto
 func ToUserDTO(user User) UserDTO {
-	return UserDTO{ID: user.ID, Username: user.Username, Password: user.Password}
+	return UserDTO{UUID: user.UUID, ID: user.ID, Username: user.Username, Password: user.Password}
 }
 
 //ToUserDTOs To_user_dtos
@@ -73,9 +78,9 @@ type UserRepository interface {
 //UserRepositoryCtx User_repository_ctx
 type UserRepositoryCtx interface {
 	Update(ctx context.Context, user User) error
-	Find(ctx context.Context, id uint) (User, error)
+	Find(ctx context.Context, id string) (User, error)
 	Insert(ctx context.Context, user User) error
-	Delete(ctx context.Context, id uint) error
+	Delete(ctx context.Context, id string) error
 }
 
 //UserService User_service
@@ -90,7 +95,7 @@ type UserService interface {
 //UserServiceDynamoDb User_service_dynamodb
 type UserServiceDynamoDb interface {
 	Update(ctx context.Context, user User) error
-	Find(ctx context.Context, id uint) (User, error)
+	Find(ctx context.Context, id string) (User, error)
 	Insert(ctx context.Context, user User) error
-	Delete(ctx context.Context, id uint) error
+	Delete(ctx context.Context, id string) error
 }

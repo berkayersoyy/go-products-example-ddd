@@ -64,7 +64,7 @@ func (a *authService) TokenValid(r *http.Request) error {
 	}
 	return nil
 }
-func (a *authService) CreateToken(userid uint) (*domain.TokenDetails, error) {
+func (a *authService) CreateToken(userid string) (*domain.TokenDetails, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
@@ -76,7 +76,7 @@ func (a *authService) CreateToken(userid uint) (*domain.TokenDetails, error) {
 	td.AccessUUID = uuid.NewV4().String()
 
 	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
-	td.RefreshUUID = td.AccessUUID + "++" + strconv.Itoa(int(userid))
+	td.RefreshUUID = td.AccessUUID + "++" + userid
 
 	//Creating Access Token
 	atClaims := jwt.MapClaims{}
@@ -102,16 +102,16 @@ func (a *authService) CreateToken(userid uint) (*domain.TokenDetails, error) {
 	return td, nil
 }
 
-func (a *authService) CreateAuth(userid uint, td *domain.TokenDetails) error {
+func (a *authService) CreateAuth(userid string, td *domain.TokenDetails) error {
 	at := time.Unix(td.AtExpires, 0)
 	rt := time.Unix(td.RtExpires, 0)
 	now := time.Now()
 
-	errAccess := a.Client.Set(td.AccessUUID, strconv.Itoa(int(userid)), at.Sub(now)).Err()
+	errAccess := a.Client.Set(td.AccessUUID, userid, at.Sub(now)).Err()
 	if errAccess != nil {
 		return errAccess
 	}
-	errRefresh := a.Client.Set(td.RefreshUUID, strconv.Itoa(int(userid)), rt.Sub(now)).Err()
+	errRefresh := a.Client.Set(td.RefreshUUID, userid, rt.Sub(now)).Err()
 	if errRefresh != nil {
 		return errRefresh
 	}
@@ -128,7 +128,7 @@ func (a *authService) ExtractTokenMetadata(r *http.Request) (*domain.AccessDetai
 		if !ok {
 			return nil, err
 		}
-		userID, err := strconv.Atoi(fmt.Sprintf("%.f", claims["user_id"]))
+		userID := fmt.Sprintf("%.f", claims["user_id"])
 		if err != nil {
 			return nil, err
 		}
@@ -169,7 +169,7 @@ func (a *authService) FetchAuth(authD *domain.AccessDetails) (uint64, error) {
 		return 0, err
 	}
 	userID, _ := strconv.ParseUint(userid, 10, 64)
-	if uint64(authD.UserID) != userID {
+	if authD.UserID != userid {
 		return 0, errors.New("unauthorized")
 	}
 	return userID, nil

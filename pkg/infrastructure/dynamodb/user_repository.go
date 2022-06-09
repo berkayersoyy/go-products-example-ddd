@@ -7,10 +7,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/berkayersoyy/go-products-example-ddd/pkg/application/util/config"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
+	"github.com/joho/godotenv"
+	"github.com/twinj/uuid"
 	"log"
-	"strconv"
+	"os"
 	"time"
 )
 
@@ -26,7 +27,11 @@ func ProvideUserRepository(session *session.Session, Timeout time.Duration) doma
 func (u userRepository) Insert(ctx context.Context, user domain.User) error {
 	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
 	defer cancel()
-
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+	user.DeletedAt = nil
+	UUID := uuid.NewV4()
+	user.UUID = UUID.String()
 	item, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
 		log.Println(err)
@@ -55,17 +60,17 @@ func (u userRepository) Insert(ctx context.Context, user domain.User) error {
 	return nil
 }
 
-func (u userRepository) Find(ctx context.Context, id uint) (domain.User, error) {
+func (u userRepository) Find(ctx context.Context, id string) (domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
 	defer cancel()
 
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("users"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"id": {S: aws.String(strconv.FormatUint(uint64(id), 10))},
+			"uuid": {S: aws.String(id)},
 		},
 	}
-
+	//TODO dynamodb ayarla ve docker compose ayarla docker hub icin ve api testler ayarlar
 	res, err := u.client.GetItemWithContext(ctx, input)
 	if err != nil {
 		log.Println(err)
@@ -80,21 +85,20 @@ func (u userRepository) Find(ctx context.Context, id uint) (domain.User, error) 
 	var user domain.User
 	if err := dynamodbattribute.UnmarshalMap(res.Item, &user); err != nil {
 		log.Println(err)
-
 		return domain.User{}, domain.ErrInternal
 	}
 
 	return user, nil
 }
 
-func (u userRepository) Delete(ctx context.Context, id uint) error {
+func (u userRepository) Delete(ctx context.Context, id string) error {
 	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
 	defer cancel()
 
 	input := &dynamodb.DeleteItemInput{
 		TableName: aws.String("users"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"id": {S: aws.String(strconv.FormatUint(uint64(id), 10))},
+			"uuid": {S: aws.String(id)},
 		},
 	}
 
@@ -114,17 +118,19 @@ func (u userRepository) Update(ctx context.Context, user domain.User) error {
 	input := &dynamodb.UpdateItemInput{
 		TableName: aws.String("users"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"id": {S: aws.String(strconv.FormatUint(uint64(user.ID), 10))},
+			"uuid": {S: aws.String(user.UUID)},
 		},
 		ExpressionAttributeNames: map[string]*string{
-			"#username": aws.String("username"),
-			"#password": aws.String("password"),
+			"#username":  aws.String("username"),
+			"#password":  aws.String("password"),
+			"#UpdatedAt": aws.String("UpdatedAt"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":name":     {S: aws.String(user.Username)},
-			":password": {N: aws.String(user.Password)},
+			":username":  {S: aws.String(user.Username)},
+			":password":  {S: aws.String(user.Password)},
+			":UpdatedAt": {S: aws.String(time.Now().Format(time.RFC3339))},
 		},
-		UpdateExpression: aws.String("set #id = :id, #username = :username, #password = :password"),
+		UpdateExpression: aws.String("set #username = :username, #password = :password, #UpdatedAt = :UpdatedAt"),
 		ReturnValues:     aws.String("UPDATED_NEW"),
 	}
 
@@ -138,16 +144,19 @@ func (u userRepository) Update(ctx context.Context, user domain.User) error {
 }
 
 //New Returns new
-func New(config config.Config) (*session.Session, error) {
+func New() (*session.Session, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 	return session.NewSessionWithOptions(
 		session.Options{
 			Config: aws.Config{
-				Credentials:      credentials.NewStaticCredentials(config.ID, config.AccessSecret, ""),
-				Region:           aws.String(config.Region),
-				Endpoint:         aws.String(config.EndpointURL),
+				Credentials:      credentials.NewStaticCredentials(os.Getenv("DynamoDBID"), os.Getenv("DynamoDBSECRET"), ""),
+				Region:           aws.String(os.Getenv("DynamoDBREGION")),
 				S3ForcePathStyle: aws.Bool(true),
 			},
-			Profile: config.Profile,
+			Profile: os.Getenv("DynamoDBPROFILE"),
 		},
 	)
 }

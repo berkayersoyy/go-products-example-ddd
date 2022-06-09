@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 )
 
 //authHandler Auth handler
@@ -105,7 +104,7 @@ func (a *authHandler) Refresh(c *gin.Context) {
 			c.JSON(http.StatusUnprocessableEntity, err)
 			return
 		}
-		userID, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["user_id"]), 10, 64)
+		userID := fmt.Sprintf("%.f", claims["user_id"])
 		if err != nil {
 			c.JSON(http.StatusUnprocessableEntity, "Error occurred")
 			return
@@ -117,13 +116,13 @@ func (a *authHandler) Refresh(c *gin.Context) {
 			return
 		}
 		//Create new pairs of refresh and access tokens
-		ts, createErr := a.AuthService.CreateToken(uint(userID))
+		ts, createErr := a.AuthService.CreateToken(userID)
 		if createErr != nil {
 			c.JSON(http.StatusForbidden, createErr.Error())
 			return
 		}
 		//save the tokens metadata to redis
-		saveErr := a.AuthService.CreateAuth(uint(userID), ts)
+		saveErr := a.AuthService.CreateAuth(userID, ts)
 		if saveErr != nil {
 			c.JSON(http.StatusForbidden, saveErr.Error())
 			return

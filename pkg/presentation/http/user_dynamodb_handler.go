@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
-	"strconv"
 )
 
 //userHandlerDynamoDb User handler dynamodb
@@ -36,18 +35,21 @@ func ProvideUserHandlerDynamoDb(u domain.UserServiceDynamoDb) domain.UserHandler
 // @Router /v1/users/ [post]
 func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 	var user domain.User
-	err := c.BindJSON(user)
+	err := c.BindJSON(&user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
 	}
 	validate := validator.New()
 	err = validate.Struct(user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
 	}
 	err = u.userService.Insert(c, user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
 	}
 	c.Status(http.StatusOK)
 }
@@ -68,13 +70,15 @@ func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 // @Failure 404 {string} string
 // @Router /v1/users/ [post]
 func (u userHandlerDynamoDb) Find(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
-	user, err := u.userService.Find(c, uint(id))
+	id := c.Param("id")
+	user, err := u.userService.Find(c, id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
 	}
 	if user == (domain.User{}) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": errors.New("user not found")})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"User": user})
 }
@@ -99,25 +103,30 @@ func (u userHandlerDynamoDb) Update(c *gin.Context) {
 	err := c.BindJSON(&userDTO)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
 	}
 	validate := validator.New()
 	err = validate.Struct(userDTO)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
 	}
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
-	user, err := u.userService.Find(c, uint(id))
+	user, err := u.userService.Find(c, userDTO.UUID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
 	}
 	if user == (domain.User{}) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": errors.New("user not found")})
+		return
 	}
+	user.UUID = userDTO.UUID
 	user.Username = userDTO.Username
 	user.Password = userDTO.Password
-	err = u.userService.Insert(c, user)
+	err = u.userService.Update(c, user)
 	if err != nil {
 		c.Status(http.StatusBadRequest)
+		return
 	}
 	c.Status(http.StatusOK)
 }
@@ -138,10 +147,11 @@ func (u userHandlerDynamoDb) Update(c *gin.Context) {
 // @Failure 404 {string} string
 // @Router /v1/users/{id} [delete]
 func (u userHandlerDynamoDb) Delete(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
-	err := u.userService.Delete(c, uint(id))
+	id := c.Param("id")
+	err := u.userService.Delete(c, id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
 	}
 	c.Status(http.StatusOK)
 }

@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws/session"
 	_ "github.com/berkayersoyy/go-products-example-ddd/docs"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/application"
+	dyDb "github.com/berkayersoyy/go-products-example-ddd/pkg/infrastructure/dynamodb"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/infrastructure/mysql"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/infrastructure/redis"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/presentation/http"
@@ -22,7 +24,7 @@ import (
 //version app_version
 var version = "dev"
 
-func setup(db *gorm.DB) *gin.Engine {
+func setup(db *gorm.DB, session *session.Session) *gin.Engine {
 	productRepository := mysql.ProvideProductRepository(db)
 	productService := application.ProvideProductService(productRepository)
 	productAPI := http.ProvideProductAPI(productService)
@@ -30,12 +32,12 @@ func setup(db *gorm.DB) *gin.Engine {
 	//mysql
 	userRepository := mysql.ProvideUserRepository(db)
 	userService := application.ProvideUserService(userRepository)
-	userAPI := http.ProvideUserAPI(userService)
+	//userAPI := http.ProvideUserAPI(userService)
 
 	//dynamodb
-	//userRepositoryDynamoDb := dyDb.ProvideUserRepository(session, duration)
-	//userServiceDynamoDb := application.ProvideUserServiceDynamoDb(userRepositoryDynamoDb)
-	//userHandlerDynamoDb := http.ProvideUserHandlerDynamoDb(userServiceDynamoDb)
+	userRepositoryDynamoDb := dyDb.ProvideUserRepository(session, time.Second*30)
+	userServiceDynamoDb := application.ProvideUserServiceDynamoDb(userRepositoryDynamoDb)
+	userHandlerDynamoDb := http.ProvideUserHandlerDynamoDb(userServiceDynamoDb)
 
 	r := redis.ProvideRedisClient()
 	authService := application.ProvideAuthService(r.GetClient())
@@ -55,19 +57,19 @@ func setup(db *gorm.DB) *gin.Engine {
 	products.PUT("/products/:id", productAPI.UpdateProduct)
 
 	//users mysql
-	users := router.Group("/v1")
-	users.GET("/users", userAPI.GetAllUsers)
-	users.POST("/users", userAPI.AddUser)
-	users.GET("/users/:id", userAPI.GetUserByID)
-	users.DELETE("/users/:id", userAPI.DeleteUser)
-	users.PUT("/users/:id", userAPI.UpdateUser)
+	//users := router.Group("/v1")
+	//users.GET("/users", userAPI.GetAllUsers)
+	//users.POST("/users", userAPI.AddUser)
+	//users.GET("/users/:id", userAPI.GetUserByID)
+	//users.DELETE("/users/:id", userAPI.DeleteUser)
+	//users.PUT("/users/:id", userAPI.UpdateUser)
 
 	//users dynamodb
-	//usersDynamoDb := router.Group("/v1")
-	//usersDynamoDb.GET("/users/:id", userHandlerDynamoDb.Find)
-	//usersDynamoDb.POST("/users", userHandlerDynamoDb.Insert)
-	//usersDynamoDb.DELETE("/users/:id", userHandlerDynamoDb.Delete)
-	//usersDynamoDb.PUT("/users", userApi.UpdateUser)
+	usersDynamoDb := router.Group("/v1")
+	usersDynamoDb.GET("/users/:id", userHandlerDynamoDb.Find)
+	usersDynamoDb.POST("/users", userHandlerDynamoDb.Insert)
+	usersDynamoDb.DELETE("/users/:id", userHandlerDynamoDb.Delete)
+	usersDynamoDb.PUT("/users", userHandlerDynamoDb.Update)
 
 	//auth
 	auth := router.Group("/v1")
@@ -101,12 +103,12 @@ func main() {
 	db := dbClient.GetClient()
 	defer db.Close()
 
-	//ses, err := dyDb.New(conf)
-	//if err != nil {
-	//	panic(err)
-	//}
+	ses, err := dyDb.New()
+	if err != nil {
+		panic(err)
+	}
 
-	r := setup(db)
+	r := setup(db, ses)
 	if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
 		err := r.Run()
 		if err != nil {

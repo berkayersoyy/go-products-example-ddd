@@ -21,7 +21,7 @@ func (u userServiceDynamoDb) Update(ctx context.Context, user domain.User) error
 	}
 	return nil
 }
-func (u userServiceDynamoDb) Find(ctx context.Context, id uint) (domain.User, error) {
+func (u userServiceDynamoDb) Find(ctx context.Context, id string) (domain.User, error) {
 	user, err := u.UserRepository.Find(ctx, id)
 	if err != nil {
 		return domain.User{}, err
@@ -35,7 +35,7 @@ func (u userServiceDynamoDb) Insert(ctx context.Context, user domain.User) error
 	}
 	return nil
 }
-func (u userServiceDynamoDb) Delete(ctx context.Context, id uint) error {
+func (u userServiceDynamoDb) Delete(ctx context.Context, id string) error {
 	err := u.UserRepository.Delete(ctx, id)
 	if err != nil {
 		return err

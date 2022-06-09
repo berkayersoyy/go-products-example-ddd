@@ -3,5 +3,5 @@ package domain
 //AccessDetails Access details
 type AccessDetails struct {
 	AccessUUID string
-	UserID     int
+	UserID     string
 }
