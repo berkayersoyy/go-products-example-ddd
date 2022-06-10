@@ -57,9 +57,9 @@ func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 // @BasePath /api/v1
 
 // AddUser
-// @Summary Add user
+// @Summary Find user
 // @Schemes
-// @Description Add user
+// @Description Find user by uuid
 // @Tags Users
 // @Accept json
 // @Produce json
@@ -68,10 +68,39 @@ func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/users/ [post]
-func (u userHandlerDynamoDb) Find(c *gin.Context) {
+// @Router /v1/users/{uuid} [get]
+func (u userHandlerDynamoDb) FindByUUID(c *gin.Context) {
 	id := c.Param("id")
-	user, err := u.userService.Find(c, id)
+	user, err := u.userService.FindByUUID(c, id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+	if user == (domain.User{}) {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": errors.New("user not found")})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"User": user})
+}
+
+// @BasePath /api/v1
+
+// AddUser
+// @Summary Find user
+// @Schemes
+// @Description Find user by username
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body domain.User true "Username"
+// @Success 200 {object} domain.User
+// @Failure 500 {string} string
+// @Failure 400 {string} string
+// @Failure 404 {string} string
+// @Router /v1/users/{username} [get]
+func (u userHandlerDynamoDb) FindByUsername(c *gin.Context) {
+	username := c.Param("username")
+	user, err := u.userService.FindByUsername(c, username)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
@@ -111,7 +140,7 @@ func (u userHandlerDynamoDb) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
-	user, err := u.userService.Find(c, userDTO.UUID)
+	user, err := u.userService.FindByUUID(c, userDTO.UUID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return

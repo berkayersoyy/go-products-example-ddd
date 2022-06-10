@@ -21,13 +21,21 @@ func (u userServiceDynamoDb) Update(ctx context.Context, user domain.User) error
 	}
 	return nil
 }
-func (u userServiceDynamoDb) Find(ctx context.Context, id string) (domain.User, error) {
-	user, err := u.UserRepository.Find(ctx, id)
+func (u userServiceDynamoDb) FindByUUID(ctx context.Context, id string) (domain.User, error) {
+	user, err := u.UserRepository.FindByUUID(ctx, id)
 	if err != nil {
 		return domain.User{}, err
 	}
 	return user, nil
 }
+func (u userServiceDynamoDb) FindByUsername(ctx context.Context, username string) (domain.User, error) {
+	user, err := u.UserRepository.FindByUsername(ctx, username)
+	if err != nil {
+		return domain.User{}, err
+	}
+	return user, nil
+}
+
 func (u userServiceDynamoDb) Insert(ctx context.Context, user domain.User) error {
 	err := u.UserRepository.Insert(ctx, user)
 	if err != nil {

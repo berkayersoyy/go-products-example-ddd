@@ -60,7 +60,7 @@ func (u userRepository) Insert(ctx context.Context, user domain.User) error {
 	return nil
 }
 
-func (u userRepository) Find(ctx context.Context, id string) (domain.User, error) {
+func (u userRepository) FindByUUID(ctx context.Context, id string) (domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
 	defer cancel()
 
@@ -70,7 +70,7 @@ func (u userRepository) Find(ctx context.Context, id string) (domain.User, error
 			"uuid": {S: aws.String(id)},
 		},
 	}
-	//TODO dynamodb ayarla ve docker compose ayarla docker hub icin ve api testler ayarlar
+
 	res, err := u.client.GetItemWithContext(ctx, input)
 	if err != nil {
 		log.Println(err)
@@ -88,6 +88,45 @@ func (u userRepository) Find(ctx context.Context, id string) (domain.User, error
 		return domain.User{}, domain.ErrInternal
 	}
 
+	return user, nil
+}
+
+func (u userRepository) FindByUsername(ctx context.Context, username string) (domain.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
+	defer cancel()
+
+	input := &dynamodb.ScanInput{
+		TableName:        aws.String("users"),
+		FilterExpression: aws.String("contains(username, :username)"),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":username": {S: aws.String(username)},
+		},
+	}
+
+	res, err := u.client.ScanWithContext(ctx, input)
+	if err != nil {
+		log.Println(err)
+
+		return domain.User{}, domain.ErrInternal
+	}
+
+	if res.Items == nil {
+		return domain.User{}, domain.ErrNotFound
+	}
+	//TODO fix for loop via dynamodb scan :*(
+	var user domain.User
+	for _, userItem := range res.Items {
+		var userToScan domain.User
+		err := dynamodbattribute.UnmarshalMap(userItem, &userToScan)
+		if err != nil {
+			log.Println(err)
+			return domain.User{}, domain.ErrInternal
+		}
+		if userToScan.Username != username {
+			continue
+		}
+		user = userToScan
+	}
 	return user, nil
 }
 
@@ -149,12 +188,14 @@ func New() (*session.Session, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return session.NewSessionWithOptions(
 		session.Options{
 			Config: aws.Config{
 				Credentials:      credentials.NewStaticCredentials(os.Getenv("DynamoDBID"), os.Getenv("DynamoDBSECRET"), ""),
 				Region:           aws.String(os.Getenv("DynamoDBREGION")),
 				S3ForcePathStyle: aws.Bool(true),
+				Endpoint:         aws.String(os.Getenv("DynamoDBENDPOINTURL")),
 			},
 			Profile: os.Getenv("DynamoDBPROFILE"),
 		},
