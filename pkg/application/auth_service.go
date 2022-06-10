@@ -147,7 +147,7 @@ func (a *authService) DeleteAuth(givenUUID string) (int64, error) {
 	return deleted, nil
 }
 func (a *authService) DeleteTokens(authD *domain.AccessDetails) error {
-	refreshUUID := fmt.Sprintf("%s++%d", authD.AccessUUID, authD.UserID)
+	refreshUUID := fmt.Sprintf("%s++%s", authD.AccessUUID, authD.UserID)
 	deletedAt, err := a.Client.Del(authD.AccessUUID).Result()
 	if err != nil {
 		return err
