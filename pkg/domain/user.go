@@ -61,9 +61,10 @@ type UserHandler interface {
 //UserHandlerDynamoDb User_handler_dynamodb
 type UserHandlerDynamoDb interface {
 	Update(c *gin.Context)
-	Find(c *gin.Context)
+	FindByUUID(c *gin.Context)
 	Insert(c *gin.Context)
 	Delete(c *gin.Context)
+	FindByUsername(c *gin.Context)
 }
 
 //UserRepository User_repository
@@ -78,9 +79,10 @@ type UserRepository interface {
 //UserRepositoryCtx User_repository_ctx
 type UserRepositoryCtx interface {
 	Update(ctx context.Context, user User) error
-	Find(ctx context.Context, id string) (User, error)
+	FindByUUID(ctx context.Context, id string) (User, error)
 	Insert(ctx context.Context, user User) error
 	Delete(ctx context.Context, id string) error
+	FindByUsername(ctx context.Context, username string) (User, error)
 }
 
 //UserService User_service
@@ -95,7 +97,8 @@ type UserService interface {
 //UserServiceDynamoDb User_service_dynamodb
 type UserServiceDynamoDb interface {
 	Update(ctx context.Context, user User) error
-	Find(ctx context.Context, id string) (User, error)
+	FindByUUID(ctx context.Context, id string) (User, error)
 	Insert(ctx context.Context, user User) error
 	Delete(ctx context.Context, id string) error
+	FindByUsername(ctx context.Context, username string) (User, error)
 }

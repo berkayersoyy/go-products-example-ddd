@@ -30,8 +30,8 @@ func setup(db *gorm.DB, session *session.Session) *gin.Engine {
 	productAPI := http.ProvideProductAPI(productService)
 
 	//mysql
-	userRepository := mysql.ProvideUserRepository(db)
-	userService := application.ProvideUserService(userRepository)
+	//userRepository := mysql.ProvideUserRepository(db)
+	//userService := application.ProvideUserService(userRepository)
 	//userAPI := http.ProvideUserAPI(userService)
 
 	//dynamodb
@@ -41,7 +41,7 @@ func setup(db *gorm.DB, session *session.Session) *gin.Engine {
 
 	r := redis.ProvideRedisClient()
 	authService := application.ProvideAuthService(r.GetClient())
-	authAPI := http.ProvideAuthAPI(authService, userService)
+	authAPI := http.ProvideAuthAPI(authService, userServiceDynamoDb)
 
 	router := gin.Default()
 
@@ -66,7 +66,8 @@ func setup(db *gorm.DB, session *session.Session) *gin.Engine {
 
 	//users dynamodb
 	usersDynamoDb := router.Group("/v1")
-	usersDynamoDb.GET("/users/:id", userHandlerDynamoDb.Find)
+	usersDynamoDb.GET("/users/getbyid/:id", userHandlerDynamoDb.FindByUUID)
+	usersDynamoDb.GET("/users/getbyusername/:username", userHandlerDynamoDb.FindByUsername)
 	usersDynamoDb.POST("/users", userHandlerDynamoDb.Insert)
 	usersDynamoDb.DELETE("/users/:id", userHandlerDynamoDb.Delete)
 	usersDynamoDb.PUT("/users", userHandlerDynamoDb.Update)

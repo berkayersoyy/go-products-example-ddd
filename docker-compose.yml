@@ -13,11 +13,13 @@ services:
     environment:
       REDIS_HOST: "redis:6379"
       MYSQL_DSN: "root:123456@tcp(mysql:3306)/godb?charset=utf8mb4&parseTime=True&loc=Local"
+      DynamoDBENDPOINTURL: "http://dynamodb:8000"
     links:
       - mysql
     depends_on:
       - mysql
       - redis
+      - dynamodb
   redis:
     container_name: redis
     image: redis
@@ -40,3 +42,13 @@ services:
       MYSQL_DATABASE: godb
       MYSQL_HOST: root
       MYSQL_PORT: 3306
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb
+    hostname: dynamodb
+    restart: always
+    volumes:
+      - ./my-dynamodb-data:/home/dynamodblocal/data
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data/"

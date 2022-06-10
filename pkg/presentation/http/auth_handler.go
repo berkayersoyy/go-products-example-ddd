@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"fmt"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 	"github.com/dgrijalva/jwt-go"
@@ -14,11 +15,11 @@ import (
 //authHandler Auth handler
 type authHandler struct {
 	AuthService domain.AuthService
-	UserService domain.UserService
+	UserService domain.UserServiceDynamoDb
 }
 
 //ProvideAuthAPI Provide auth api
-func ProvideAuthAPI(a domain.AuthService, u domain.UserService) domain.AuthHandler {
+func ProvideAuthAPI(a domain.AuthService, u domain.UserServiceDynamoDb) domain.AuthHandler {
 	return &authHandler{AuthService: a, UserService: u}
 }
 
@@ -44,7 +45,11 @@ func (a *authHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
 		return
 	}
-	user := a.UserService.GetUserByUsername(u.Username)
+	user, err := a.UserService.FindByUsername(context.Background(), u.Username)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "Cannot find user")
+		return
+	}
 	if user.Username != u.Username || user.Password != u.Password {
 		c.JSON(http.StatusUnauthorized, "Please provide valid login details")
 		return
