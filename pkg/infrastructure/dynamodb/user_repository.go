@@ -255,7 +255,7 @@ func (u userRepository) listTables(ctx context.Context) (*dynamodb.ListTablesOut
 	defer cancel()
 
 	input := &dynamodb.ListTablesInput{}
-	result, err := u.client.ListTables(input)
+	result, err := u.client.ListTablesWithContext(ctx, input)
 	if err != nil {
 		return nil, err
 	}

@@ -206,5 +206,4 @@ func (u userHandlerDynamoDb) CreateTable(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusOK)
-	return
 }

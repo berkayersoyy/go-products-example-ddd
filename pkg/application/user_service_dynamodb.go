@@ -51,7 +51,7 @@ func (u userServiceDynamoDb) Delete(ctx context.Context, id string) error {
 	return nil
 }
 func (u userServiceDynamoDb) CreateTable(ctx context.Context) error {
-	err := u.CreateTable(ctx)
+	err := u.UserRepository.CreateTable(ctx)
 	if err != nil {
 		return err
 	}
