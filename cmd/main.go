@@ -24,7 +24,7 @@ import (
 //version app_version
 var version = "dev"
 
-func setup(db *gorm.DB, session *session.Session) *gin.Engine {
+func setup(db *gorm.DB, session *session.Session, ctx context.Context) *gin.Engine {
 	productRepository := mysql.ProvideProductRepository(db)
 	productService := application.ProvideProductService(productRepository)
 	productAPI := http.ProvideProductAPI(productService)
@@ -39,6 +39,10 @@ func setup(db *gorm.DB, session *session.Session) *gin.Engine {
 	userServiceDynamoDb := application.ProvideUserServiceDynamoDb(userRepositoryDynamoDb)
 	userHandlerDynamoDb := http.ProvideUserHandlerDynamoDb(userServiceDynamoDb)
 
+	err := userRepositoryDynamoDb.CreateTable(ctx)
+	if err != nil {
+		log.Fatalf("Error on creating table users, %s", err)
+	}
 	r := redis.ProvideRedisClient()
 	authService := application.ProvideAuthService(r.GetClient())
 	authAPI := http.ProvideAuthAPI(authService, userServiceDynamoDb)
@@ -109,7 +113,7 @@ func main() {
 		panic(err)
 	}
 
-	r := setup(db, ses)
+	r := setup(db, ses, ctx)
 	if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
 		err := r.Run()
 		if err != nil {

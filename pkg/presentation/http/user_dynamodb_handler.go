@@ -184,3 +184,27 @@ func (u userHandlerDynamoDb) Delete(c *gin.Context) {
 	}
 	c.Status(http.StatusOK)
 }
+
+// @BasePath /api/v1
+
+// CreateTable
+// @Summary Create table
+// @Schemes
+// @Description Create table
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Success 200 {string} string
+// @Failure 500 {string} string
+// @Failure 400 {string} string
+// @Failure 404 {string} string
+// @Router /v1/users/ [post]
+func (u userHandlerDynamoDb) CreateTable(c *gin.Context) {
+	err := u.userService.CreateTable(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+	c.Status(http.StatusOK)
+	return
+}

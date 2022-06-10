@@ -15,11 +15,11 @@ type UserRepositoryCtx struct {
 }
 
 // Delete provides a mock function with given fields: ctx, id
-func (_m *UserRepositoryCtx) Delete(ctx context.Context, id uint) error {
+func (_m *UserRepositoryCtx) Delete(ctx context.Context, id string) error {
 	ret := _m.Called(ctx, id)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
@@ -28,20 +28,41 @@ func (_m *UserRepositoryCtx) Delete(ctx context.Context, id uint) error {
 	return r0
 }
 
-// Find provides a mock function with given fields: ctx, id
-func (_m *UserRepositoryCtx) Find(ctx context.Context, id uint) (domain.User, error) {
+// FindByUUID provides a mock function with given fields: ctx, id
+func (_m *UserRepositoryCtx) FindByUUID(ctx context.Context, id string) (domain.User, error) {
 	ret := _m.Called(ctx, id)
 
 	var r0 domain.User
-	if rf, ok := ret.Get(0).(func(context.Context, uint) domain.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) domain.User); ok {
 		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Get(0).(domain.User)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FindByUsername provides a mock function with given fields: ctx, username
+func (_m *UserRepositoryCtx) FindByUsername(ctx context.Context, username string) (domain.User, error) {
+	ret := _m.Called(ctx, username)
+
+	var r0 domain.User
+	if rf, ok := ret.Get(0).(func(context.Context, string) domain.User); ok {
+		r0 = rf(ctx, username)
+	} else {
+		r0 = ret.Get(0).(domain.User)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, username)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -9,10 +9,10 @@ import (
 //User Entity_user
 // swagger:model User
 type User struct {
-	ID        string     `gorm:"primary_key" json:"id"`
-	UUID      string     `json:"uuid"`
-	Username  string     `json:"username" validate:"required"`
-	Password  string     `json:"password" validate:"required"`
+	ID        string     `gorm:"primary_key" json:"Id"`
+	UUID      string     `json:"UUID"`
+	Username  string     `json:"Username" validate:"required"`
+	Password  string     `json:"Password" validate:"required"`
 	CreatedAt time.Time  `json:"CreatedAt"`
 	UpdatedAt time.Time  `json:"UpdatedAt"`
 	DeletedAt *time.Time `json:"DeletedAt"`
@@ -65,6 +65,7 @@ type UserHandlerDynamoDb interface {
 	Insert(c *gin.Context)
 	Delete(c *gin.Context)
 	FindByUsername(c *gin.Context)
+	CreateTable(c *gin.Context)
 }
 
 //UserRepository User_repository
@@ -83,6 +84,7 @@ type UserRepositoryCtx interface {
 	Insert(ctx context.Context, user User) error
 	Delete(ctx context.Context, id string) error
 	FindByUsername(ctx context.Context, username string) (User, error)
+	CreateTable(ctx context.Context) error
 }
 
 //UserService User_service
@@ -101,4 +103,5 @@ type UserServiceDynamoDb interface {
 	Insert(ctx context.Context, user User) error
 	Delete(ctx context.Context, id string) error
 	FindByUsername(ctx context.Context, username string) (User, error)
+	CreateTable(ctx context.Context) error
 }

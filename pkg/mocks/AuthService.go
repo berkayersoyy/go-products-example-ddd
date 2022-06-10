@@ -17,13 +17,13 @@ type AuthService struct {
 	mock.Mock
 }
 
-// CreateAuth provides a mock function with given fields: userid, td
-func (_m *AuthService) CreateAuth(userid uint, td *domain.TokenDetails) error {
-	ret := _m.Called(userid, td)
+// CreateAuth provides a mock function with given fields: userID, td
+func (_m *AuthService) CreateAuth(userID string, td *domain.TokenDetails) error {
+	ret := _m.Called(userID, td)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, *domain.TokenDetails) error); ok {
-		r0 = rf(userid, td)
+	if rf, ok := ret.Get(0).(func(string, *domain.TokenDetails) error); ok {
+		r0 = rf(userID, td)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -31,13 +31,13 @@ func (_m *AuthService) CreateAuth(userid uint, td *domain.TokenDetails) error {
 	return r0
 }
 
-// CreateToken provides a mock function with given fields: userid
-func (_m *AuthService) CreateToken(userid uint) (*domain.TokenDetails, error) {
-	ret := _m.Called(userid)
+// CreateToken provides a mock function with given fields: userID
+func (_m *AuthService) CreateToken(userID string) (*domain.TokenDetails, error) {
+	ret := _m.Called(userID)
 
 	var r0 *domain.TokenDetails
-	if rf, ok := ret.Get(0).(func(uint) *domain.TokenDetails); ok {
-		r0 = rf(userid)
+	if rf, ok := ret.Get(0).(func(string) *domain.TokenDetails); ok {
+		r0 = rf(userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.TokenDetails)
@@ -45,8 +45,8 @@ func (_m *AuthService) CreateToken(userid uint) (*domain.TokenDetails, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(userid)
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(userID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -54,20 +54,20 @@ func (_m *AuthService) CreateToken(userid uint) (*domain.TokenDetails, error) {
 	return r0, r1
 }
 
-// DeleteAuth provides a mock function with given fields: givenUuid
-func (_m *AuthService) DeleteAuth(givenUuid string) (int64, error) {
-	ret := _m.Called(givenUuid)
+// DeleteAuth provides a mock function with given fields: givenUUID
+func (_m *AuthService) DeleteAuth(givenUUID string) (int64, error) {
+	ret := _m.Called(givenUUID)
 
 	var r0 int64
 	if rf, ok := ret.Get(0).(func(string) int64); ok {
-		r0 = rf(givenUuid)
+		r0 = rf(givenUUID)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(givenUuid)
+		r1 = rf(givenUUID)
 	} else {
 		r1 = ret.Error(1)
 	}

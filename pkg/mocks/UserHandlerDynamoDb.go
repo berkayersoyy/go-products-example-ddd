@@ -17,8 +17,13 @@ func (_m *UserHandlerDynamoDb) Delete(c *gin.Context) {
 	_m.Called(c)
 }
 
-// Find provides a mock function with given fields: c
-func (_m *UserHandlerDynamoDb) Find(c *gin.Context) {
+// FindByUUID provides a mock function with given fields: c
+func (_m *UserHandlerDynamoDb) FindByUUID(c *gin.Context) {
+	_m.Called(c)
+}
+
+// FindByUsername provides a mock function with given fields: c
+func (_m *UserHandlerDynamoDb) FindByUsername(c *gin.Context) {
 	_m.Called(c)
 }
 
