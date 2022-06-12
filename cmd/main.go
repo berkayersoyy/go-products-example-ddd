@@ -24,7 +24,7 @@ import (
 //version app_version
 var version = "dev"
 
-func setup(db *gorm.DB, session *session.Session, ctx context.Context) *gin.Engine {
+func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engine {
 	productRepository := mysql.ProvideProductRepository(db)
 	productService := application.ProvideProductService(productRepository)
 	productAPI := http.ProvideProductAPI(productService)
@@ -114,7 +114,7 @@ func main() {
 		panic(err)
 	}
 
-	r := setup(db, ses, ctx)
+	r := setup(ctx, db, ses)
 	if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
 		err := r.Run()
 		if err != nil {
