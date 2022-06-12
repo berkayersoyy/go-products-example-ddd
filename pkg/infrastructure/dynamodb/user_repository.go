@@ -241,6 +241,14 @@ func New() (*session.Session, error) {
 			Profile: os.Getenv("DynamoDBPROFILE"),
 		},
 	)
+	//return session.NewSessionWithOptions(
+	//	session.Options{
+	//		Config: aws.Config{
+	//			Region:   aws.String(os.Getenv("DynamoDBREGION")),
+	//			Endpoint: aws.String(os.Getenv("DynamoDBENDPOINTURL")),
+	//		},
+	//	},
+	//)
 }
 func contains(list []*string, compareItem string) bool {
 	for _, listItem := range list {
@@ -257,6 +265,7 @@ func (u userRepository) listTables(ctx context.Context) (*dynamodb.ListTablesOut
 	input := &dynamodb.ListTablesInput{}
 	result, err := u.client.ListTablesWithContext(ctx, input)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	return result, nil

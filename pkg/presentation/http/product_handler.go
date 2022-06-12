@@ -4,7 +4,6 @@ import (
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -86,7 +85,6 @@ func (p *productHandler) AddProduct(c *gin.Context) {
 	var product domain.Product
 	err := c.BindJSON(&product)
 	if err != nil {
-		log.Fatalln(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -122,12 +120,10 @@ func (p *productHandler) UpdateProduct(c *gin.Context) {
 	var productDTO domain.ProductDTO
 	err := c.BindJSON(&productDTO)
 	if err != nil {
-		log.Fatalln(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	validate := validator.New()
-	err = validate.Struct(productDTO)
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		c.Abort()

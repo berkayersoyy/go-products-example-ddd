@@ -40,11 +40,12 @@ func setup(db *gorm.DB, session *session.Session, ctx context.Context) *gin.Engi
 	userHandlerDynamoDb := http.ProvideUserHandlerDynamoDb(userServiceDynamoDb)
 
 	err := userRepositoryDynamoDb.CreateTable(ctx)
+
 	if err != nil {
-		log.Fatalf("Error on creating table users, %s", err)
+		log.Fatalf("Error on creating users table, %s", err)
 	}
-	r := redis.ProvideRedisClient()
-	authService := application.ProvideAuthService(r.GetClient())
+	redisClient := redis.ProvideRedisClient()
+	authService := application.ProvideAuthService(redisClient.GetClient())
 	authAPI := http.ProvideAuthAPI(authService, userServiceDynamoDb)
 
 	router := gin.Default()

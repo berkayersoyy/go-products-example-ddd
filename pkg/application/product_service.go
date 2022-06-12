@@ -21,7 +21,6 @@ func (p *productService) GetProductByID(id uint) domain.Product {
 
 func (p *productService) AddProduct(product domain.Product) domain.Product {
 	p.ProductRepository.AddProduct(product)
-
 	return product
 }
 
