@@ -1,0 +1,9 @@
+secretGenerator:
+- name: mysql-pass
+  literals:
+  - password=123456
+resources:
+  - app-deployment.yaml
+  - mysql-deployment.yaml
+  - dynamodb-deployment.yaml
+  - redis-deployment.yaml

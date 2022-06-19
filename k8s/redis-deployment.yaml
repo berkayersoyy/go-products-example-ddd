@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-app-redis
+  labels:
+    app: app-redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: app-redis
+    tier: redis
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pv-claim
+  labels:
+    app: app-redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-app-redis
+  labels:
+    app: app-redis
+spec:
+  selector:
+    matchLabels:
+      app: app-redis
+      tier: redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: app-redis
+        tier: redis
+    spec:
+      containers:
+        - image: redis
+          name: redis
+          ports:
+            - containerPort: 6379
+              name: redis
+          volumeMounts:
+            - name: redis-persistent-storage
+              mountPath: /var/lib/redis
+      volumes:
+        - name: redis-persistent-storage
+          persistentVolumeClaim:
+            claimName: redis-pv-claim

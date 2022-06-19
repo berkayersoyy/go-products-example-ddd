@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-app-dynamodb
+  labels:
+    app: app-dynamodb
+spec:
+  ports:
+    - port: 8000
+  selector:
+    app: app-dynamodb
+    tier: dynamodb
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dynamodb-pv-claim
+  labels:
+    app: app-dynamodb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-app-dynamodb
+  labels:
+    app: app-dynamodb
+spec:
+  selector:
+    matchLabels:
+      app: app-dynamodb
+      tier: dynamodb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: app-dynamodb
+        tier: dynamodb
+    spec:
+      containers:
+        - image: amazon/dynamodb-local
+          name: dynamodb
+          ports:
+            - containerPort: 8000
+              name: dynamodb
+          volumeMounts:
+            - name: dynamodb-persistent-storage
+              mountPath: /var/lib/dynamodb
+      volumes:
+        - name: dynamodb-persistent-storage
+          persistentVolumeClaim:
+            claimName: dynamodb-pv-claim

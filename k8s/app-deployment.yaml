@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-app
+  labels:
+    app: go-app
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: go-app
+    tier: backend
+  type: NodePort
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: go-app-pv-claim
+  labels:
+    app: go-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-app
+  labels:
+    app: go-app
+spec:
+  selector:
+    matchLabels:
+      app: go-app
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: go-app
+        tier: backend
+    spec:
+      containers:
+        - image: go-products-example-ddd
+          imagePullPolicy: IfNotPresent
+          name: go-app
+          env:
+            - name: MYSQL_DSN
+              value: root:123456@tcp(go-app-mysql:3306)/godb?parseTime=true&loc=Local
+            - name: MYSQL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass
+                  key: password
+            - name: DynamoDBID
+              value: dummyID
+            - name: DynamoDBSECRET
+              value: dummySECRET
+            - name: DynamoDBREGION
+              value: us-east-1
+            - name: DynamoDBPROFILE
+              value: localstack
+            - name: DynamoDBENDPOINTURL
+              value: http://go-app-dynamodb:8000
+            - name: REDIS_HOST
+              value: go-app-redis:6379
+          ports:
+            - containerPort: 8080
+              name: go-app
+          volumeMounts:
+            - name: go-app-persistent-storage
+              mountPath: /var/lib/app
+      volumes:
+        - name: go-app-persistent-storage
+          persistentVolumeClaim:
+            claimName: go-app-pv-claim
