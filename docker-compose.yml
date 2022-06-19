@@ -1,9 +1,9 @@
 version: '3.4'
 
 services:
-  goproductsexampleddd:
-    container_name: goproductsexampleddd
-    image: goproductsexampleddd
+  go-products-example-ddd:
+    container_name: go-products-example-ddd
+    image: go-products-example-ddd
     restart: always
     build:
       context: .
@@ -13,7 +13,7 @@ services:
     environment:
       REDIS_HOST: "redis:6379"
       MYSQL_DSN: "root:123456@tcp(mysql:3306)/godb?charset=utf8mb4&parseTime=True&loc=Local"
-      DynamoDBENDPOINTURL: "http://dynamodb:8020"
+      DynamoDBENDPOINTURL: "http://dynamodb:8000"
       DynamoDBID: "dummyID"
       DynamoDBSECRET: "dummySECRET"
       DynamoDBREGION: "us-east-1"
@@ -51,19 +51,8 @@ services:
     container_name: dynamodb
     restart: always
     ports:
-      - "8020:8020"
-    command: "-jar DynamoDBLocal.jar -port 8020 -sharedDb -dbPath ./data"
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
-  dynamodb-admin:
-    image: aaronshaf/dynamodb-admin
-    ports:
-      - "8001:8001"
-    environment:
-      DYNAMO_ENDPOINT: "http://dynamodb:8020"
-      AWS_REGION: "us-east-1"
-      AWS_ACCESS_KEY_ID: "dummyID"
-      AWS_SECRET_ACCESS_KEY: "dummySECRET"
-    depends_on:
-      - dynamodb

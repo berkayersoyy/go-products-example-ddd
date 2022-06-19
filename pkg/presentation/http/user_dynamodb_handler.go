@@ -20,7 +20,7 @@ func ProvideUserHandlerDynamoDb(u domain.UserServiceDynamoDb) domain.UserHandler
 
 // @BasePath /api/v1
 
-// AddUser
+// Insert
 // @Summary Add user
 // @Schemes
 // @Description Add user
@@ -32,7 +32,7 @@ func ProvideUserHandlerDynamoDb(u domain.UserServiceDynamoDb) domain.UserHandler
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/users/ [post]
+// @Router /v1/dynamodb/users/ [post]
 func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 	var user domain.User
 	err := c.BindJSON(&user)
@@ -56,7 +56,7 @@ func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 
 // @BasePath /api/v1
 
-// AddUser
+// FindByUUID
 // @Summary Find user
 // @Schemes
 // @Description Find user by uuid
@@ -68,7 +68,7 @@ func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/users/{uuid} [get]
+// @Router /v1/dynamodb/users/{uuid} [get]
 func (u userHandlerDynamoDb) FindByUUID(c *gin.Context) {
 	id := c.Param("id")
 	user, err := u.userService.FindByUUID(c, id)
@@ -85,7 +85,7 @@ func (u userHandlerDynamoDb) FindByUUID(c *gin.Context) {
 
 // @BasePath /api/v1
 
-// AddUser
+// FindByUsername
 // @Summary Find user
 // @Schemes
 // @Description Find user by username
@@ -97,7 +97,7 @@ func (u userHandlerDynamoDb) FindByUUID(c *gin.Context) {
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/users/{username} [get]
+// @Router /v1/dynamodb/users/{username} [get]
 func (u userHandlerDynamoDb) FindByUsername(c *gin.Context) {
 	username := c.Param("username")
 	user, err := u.userService.FindByUsername(c, username)
@@ -114,7 +114,7 @@ func (u userHandlerDynamoDb) FindByUsername(c *gin.Context) {
 
 // @BasePath /api/v1
 
-// Update User
+// Update
 // @Summary Update user
 // @Schemes
 // @Description Update user
@@ -126,7 +126,7 @@ func (u userHandlerDynamoDb) FindByUsername(c *gin.Context) {
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/users/ [put]
+// @Router /v1/dynamodb/users/ [put]
 func (u userHandlerDynamoDb) Update(c *gin.Context) {
 	var userDTO domain.UserDTO
 	err := c.BindJSON(&userDTO)
@@ -162,7 +162,7 @@ func (u userHandlerDynamoDb) Update(c *gin.Context) {
 
 // @BasePath /api/v1
 
-// DeleteUser
+// Delete
 // @Summary Delete user
 // @Schemes
 // @Description Delete user
@@ -174,7 +174,7 @@ func (u userHandlerDynamoDb) Update(c *gin.Context) {
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/users/{id} [delete]
+// @Router /v1/dynamodb/users/{id} [delete]
 func (u userHandlerDynamoDb) Delete(c *gin.Context) {
 	id := c.Param("id")
 	err := u.userService.Delete(c, id)
@@ -198,7 +198,7 @@ func (u userHandlerDynamoDb) Delete(c *gin.Context) {
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/users/ [post]
+// @Router /v1/dynamodb/users/ [post]
 func (u userHandlerDynamoDb) CreateTable(c *gin.Context) {
 	err := u.userService.CreateTable(c)
 	if err != nil {

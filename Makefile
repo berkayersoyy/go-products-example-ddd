@@ -22,3 +22,17 @@ test-with-coverage:
 lint:
 	$(info Lint started)
 	golangci-lint run
+
+.PHONY: run-k8s
+run-k8s:
+	chmod +x ./scripts/k8s/RunKubernetes.sh
+	./scripts/k8s/RunKubernetes.sh
+prerequisites: run-k8s
+target: prerequisites
+
+.PHONY: stop-k8s
+stop-k8s:
+	chmod +x ./scripts/k8s/StopKubernetes.sh
+	./scripts/k8s/StopKubernetes.sh
+prerequisites: stop-k8s
+target: prerequisites

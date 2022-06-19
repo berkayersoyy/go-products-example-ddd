@@ -43,42 +43,45 @@ definitions:
     type: object
   domain.User:
     properties:
-      createdAt:
+      CreatedAt:
         type: string
-      deletedAt:
+      DeletedAt:
         type: string
-      id:
-        type: integer
-      password:
+      Id:
         type: string
-      updatedAt:
+      Password:
         type: string
-      username:
+      UUID:
+        type: string
+      UpdatedAt:
+        type: string
+      Username:
         type: string
     required:
-    - password
-    - username
+    - Password
+    - Username
     type: object
   domain.UserDTO:
     properties:
       id:
-        example: "0"
+        example: ""
         type: string
       password:
         type: string
       username:
         type: string
+      uuid:
+        type: string
     required:
     - password
     - username
     type: object
-host: localhost:8080
 info:
   contact:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: This is a sample server server.
+  description: This is a sample server.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -86,6 +89,167 @@ info:
   title: Gin Swagger Example API
   version: "1.0"
 paths:
+  /v1/dynamodb/users/:
+    post:
+      consumes:
+      - application/json
+      description: Create table
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create table
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update user
+      parameters:
+      - description: User ID
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update user
+      tags:
+      - Users
+  /v1/dynamodb/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete user
+      tags:
+      - Users
+  /v1/dynamodb/users/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Find user by username
+      parameters:
+      - description: Username
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Find user
+      tags:
+      - Users
+  /v1/dynamodb/users/{uuid}:
+    get:
+      consumes:
+      - application/json
+      description: Find user by uuid
+      parameters:
+      - description: User ID
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Find user
+      tags:
+      - Users
   /v1/login/:
     post:
       consumes:
@@ -122,6 +286,164 @@ paths:
       summary: Login
       tags:
       - Auth
+  /v1/mysql/users/:
+    get:
+      consumes:
+      - application/json
+      description: Fetch all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Fetch all users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Add user
+      parameters:
+      - description: User ID
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Add user
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update user
+      parameters:
+      - description: User ID
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update user
+      tags:
+      - Users
+  /v1/mysql/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete user
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Fetch user by id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Fetch user by id
+      tags:
+      - Users
   /v1/products/:
     get:
       consumes:
@@ -290,164 +612,6 @@ paths:
       summary: Fetch product by id
       tags:
       - Products
-  /v1/users/:
-    get:
-      consumes:
-      - application/json
-      description: Fetch all users
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.User'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Fetch all users
-      tags:
-      - Users
-    post:
-      consumes:
-      - application/json
-      description: Add user
-      parameters:
-      - description: User ID
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/domain.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.User'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Add user
-      tags:
-      - Users
-    put:
-      consumes:
-      - application/json
-      description: Update user
-      parameters:
-      - description: User ID
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/domain.UserDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Update user
-      tags:
-      - Users
-  /v1/users/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete user
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Delete user
-      tags:
-      - Users
-    get:
-      consumes:
-      - application/json
-      description: Fetch user by id
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.User'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Fetch user by id
-      tags:
-      - Users
 schemes:
 - http
 swagger: "2.0"

@@ -62,7 +62,7 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 	products.PUT("/products/:id", productAPI.UpdateProduct)
 
 	//users mysql
-	//users := router.Group("/v1")
+	//users := router.Group("/v1/mysql")
 	//users.GET("/users", userAPI.GetAllUsers)
 	//users.POST("/users", userAPI.AddUser)
 	//users.GET("/users/:id", userAPI.GetUserByID)
@@ -70,7 +70,7 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 	//users.PUT("/users/:id", userAPI.UpdateUser)
 
 	//users dynamodb
-	usersDynamoDb := router.Group("/v1")
+	usersDynamoDb := router.Group("/v1/dynamodb")
 	usersDynamoDb.GET("/users/getbyid/:id", userHandlerDynamoDb.FindByUUID)
 	usersDynamoDb.GET("/users/getbyusername/:username", userHandlerDynamoDb.FindByUsername)
 	usersDynamoDb.POST("/users", userHandlerDynamoDb.Insert)
@@ -99,7 +99,6 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:8080
 // @BasePath /
 // @schemes http
 func main() {
