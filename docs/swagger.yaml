@@ -93,229 +93,6 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create table
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Create table
-      tags:
-      - Users
-    put:
-      consumes:
-      - application/json
-      description: Update user
-      parameters:
-      - description: User ID
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/domain.UserDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Update user
-      tags:
-      - Users
-  /v1/dynamodb/users/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete user
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Delete user
-      tags:
-      - Users
-  /v1/dynamodb/users/{username}:
-    get:
-      consumes:
-      - application/json
-      description: Find user by username
-      parameters:
-      - description: Username
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/domain.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.User'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Find user
-      tags:
-      - Users
-  /v1/dynamodb/users/{uuid}:
-    get:
-      consumes:
-      - application/json
-      description: Find user by uuid
-      parameters:
-      - description: User ID
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/domain.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.User'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Find user
-      tags:
-      - Users
-  /v1/login/:
-    post:
-      consumes:
-      - application/json
-      description: Login
-      parameters:
-      - description: User ID
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/domain.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      security:
-      - bearerAuth: []
-      summary: Login
-      tags:
-      - Auth
-  /v1/mysql/users/:
-    get:
-      consumes:
-      - application/json
-      description: Fetch all users
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.User'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Fetch all users
-      tags:
-      - Users
-    post:
-      consumes:
-      - application/json
       description: Add user
       parameters:
       - description: User ID
@@ -379,13 +156,13 @@ paths:
       summary: Update user
       tags:
       - Users
-  /v1/mysql/users/{id}:
+  /v1/dynamodb/users/{id}:
     delete:
       consumes:
       - application/json
       description: Delete user
       parameters:
-      - description: User ID
+      - description: User UUID
         in: path
         name: id
         required: true
@@ -412,14 +189,15 @@ paths:
       summary: Delete user
       tags:
       - Users
+  /v1/dynamodb/users/getbyusername/{username}:
     get:
       consumes:
       - application/json
-      description: Fetch user by id
+      description: Find user by username
       parameters:
-      - description: User ID
+      - description: Username
         in: path
-        name: id
+        name: username
         required: true
         type: string
       produces:
@@ -441,9 +219,78 @@ paths:
           description: Internal Server Error
           schema:
             type: string
-      summary: Fetch user by id
+      summary: Find user
       tags:
       - Users
+  /v1/dynamodb/users/getbyuuid/{uuid}:
+    get:
+      consumes:
+      - application/json
+      description: Find user by uuid
+      parameters:
+      - description: User UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Find user
+      tags:
+      - Users
+  /v1/login/:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: User ID
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - bearerAuth: []
+      summary: Login
+      tags:
+      - Auth
   /v1/products/:
     get:
       consumes:
