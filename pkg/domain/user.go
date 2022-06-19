@@ -65,7 +65,6 @@ type UserHandlerDynamoDb interface {
 	Insert(c *gin.Context)
 	Delete(c *gin.Context)
 	FindByUsername(c *gin.Context)
-	CreateTable(c *gin.Context)
 }
 
 //UserRepository User_repository
@@ -101,7 +100,7 @@ type UserServiceDynamoDb interface {
 	Update(ctx context.Context, user User) error
 	FindByUUID(ctx context.Context, id string) (User, error)
 	Insert(ctx context.Context, user User) error
-	Delete(ctx context.Context, id string) error
+	Delete(ctx context.Context, uuid string) error
 	FindByUsername(ctx context.Context, username string) (User, error)
 	CreateTable(ctx context.Context) error
 }

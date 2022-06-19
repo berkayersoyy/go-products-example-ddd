@@ -71,7 +71,7 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 
 	//users dynamodb
 	usersDynamoDb := router.Group("/v1/dynamodb")
-	usersDynamoDb.GET("/users/getbyid/:id", userHandlerDynamoDb.FindByUUID)
+	usersDynamoDb.GET("/users/getbyuuid/:uuid", userHandlerDynamoDb.FindByUUID)
 	usersDynamoDb.GET("/users/getbyusername/:username", userHandlerDynamoDb.FindByUsername)
 	usersDynamoDb.POST("/users", userHandlerDynamoDb.Insert)
 	usersDynamoDb.DELETE("/users/:id", userHandlerDynamoDb.Delete)

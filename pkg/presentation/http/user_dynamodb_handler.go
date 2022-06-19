@@ -63,14 +63,14 @@ func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 // @Tags Users
 // @Accept json
 // @Produce json
-// @Param user body domain.User true "User ID"
+// @Param uuid path string true "User UUID"
 // @Success 200 {object} domain.User
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/dynamodb/users/{uuid} [get]
+// @Router /v1/dynamodb/users/getbyuuid/{uuid} [get]
 func (u userHandlerDynamoDb) FindByUUID(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("uuid")
 	user, err := u.userService.FindByUUID(c, id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
@@ -92,12 +92,12 @@ func (u userHandlerDynamoDb) FindByUUID(c *gin.Context) {
 // @Tags Users
 // @Accept json
 // @Produce json
-// @Param user body domain.User true "Username"
+// @Param username path string true "Username"
 // @Success 200 {object} domain.User
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
-// @Router /v1/dynamodb/users/{username} [get]
+// @Router /v1/dynamodb/users/getbyusername/{username} [get]
 func (u userHandlerDynamoDb) FindByUsername(c *gin.Context) {
 	username := c.Param("username")
 	user, err := u.userService.FindByUsername(c, username)
@@ -169,38 +169,15 @@ func (u userHandlerDynamoDb) Update(c *gin.Context) {
 // @Tags Users
 // @Accept json
 // @Produce json
-// @Param id path string true "User ID"
+// @Param id path string true "User UUID"
 // @Success 200 {string} string
 // @Failure 500 {string} string
 // @Failure 400 {string} string
 // @Failure 404 {string} string
 // @Router /v1/dynamodb/users/{id} [delete]
 func (u userHandlerDynamoDb) Delete(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("uuid")
 	err := u.userService.Delete(c, id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
-		return
-	}
-	c.Status(http.StatusOK)
-}
-
-// @BasePath /api/v1
-
-// CreateTable
-// @Summary Create table
-// @Schemes
-// @Description Create table
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Success 200 {string} string
-// @Failure 500 {string} string
-// @Failure 400 {string} string
-// @Failure 404 {string} string
-// @Router /v1/dynamodb/users/ [post]
-func (u userHandlerDynamoDb) CreateTable(c *gin.Context) {
-	err := u.userService.CreateTable(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return

@@ -171,14 +171,14 @@ func (u userRepository) FindByUsername(ctx context.Context, username string) (do
 	return user, nil
 }
 
-func (u userRepository) Delete(ctx context.Context, id string) error {
+func (u userRepository) Delete(ctx context.Context, uuid string) error {
 	ctx, cancel := context.WithTimeout(ctx, u.Timeout)
 	defer cancel()
 
 	input := &dynamodb.DeleteItemInput{
 		TableName: aws.String("Users"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"UUID": {S: aws.String(id)},
+			"UUID": {S: aws.String(uuid)},
 		},
 	}
 

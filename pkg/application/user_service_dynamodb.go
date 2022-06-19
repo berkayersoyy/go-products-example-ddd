@@ -21,8 +21,8 @@ func (u userServiceDynamoDb) Update(ctx context.Context, user domain.User) error
 	}
 	return nil
 }
-func (u userServiceDynamoDb) FindByUUID(ctx context.Context, id string) (domain.User, error) {
-	user, err := u.UserRepository.FindByUUID(ctx, id)
+func (u userServiceDynamoDb) FindByUUID(ctx context.Context, uuid string) (domain.User, error) {
+	user, err := u.UserRepository.FindByUUID(ctx, uuid)
 	if err != nil {
 		return domain.User{}, err
 	}
