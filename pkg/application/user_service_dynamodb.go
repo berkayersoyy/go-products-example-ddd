@@ -6,11 +6,11 @@ import (
 )
 
 type userServiceDynamoDb struct {
-	UserRepository domain.UserRepositoryCtx
+	UserRepository domain.UserRepositoryDynamoDb
 }
 
 //ProvideUserServiceDynamoDb Provide user service via dynamodb
-func ProvideUserServiceDynamoDb(u domain.UserRepositoryCtx) domain.UserServiceDynamoDb {
+func ProvideUserServiceDynamoDb(u domain.UserRepositoryDynamoDb) domain.UserServiceDynamoDb {
 	return userServiceDynamoDb{UserRepository: u}
 }
 
