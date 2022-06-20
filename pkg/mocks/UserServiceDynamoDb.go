@@ -14,13 +14,27 @@ type UserServiceDynamoDb struct {
 	mock.Mock
 }
 
-// Delete provides a mock function with given fields: ctx, id
-func (_m *UserServiceDynamoDb) Delete(ctx context.Context, id string) error {
-	ret := _m.Called(ctx, id)
+// CreateTable provides a mock function with given fields: ctx
+func (_m *UserServiceDynamoDb) CreateTable(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Delete provides a mock function with given fields: ctx, uuid
+func (_m *UserServiceDynamoDb) Delete(ctx context.Context, uuid string) error {
+	ret := _m.Called(ctx, uuid)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = rf(ctx, id)
+		r0 = rf(ctx, uuid)
 	} else {
 		r0 = ret.Error(0)
 	}

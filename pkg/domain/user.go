@@ -76,8 +76,8 @@ type UserRepository interface {
 	DeleteUser(user User)
 }
 
-//UserRepositoryCtx User_repository_ctx
-type UserRepositoryCtx interface {
+//UserRepositoryDynamoDb User_repository_Dynamodb
+type UserRepositoryDynamoDb interface {
 	Update(ctx context.Context, user User) error
 	FindByUUID(ctx context.Context, id string) (User, error)
 	Insert(ctx context.Context, user User) error

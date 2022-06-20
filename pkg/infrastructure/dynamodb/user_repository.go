@@ -21,7 +21,7 @@ type userRepository struct {
 }
 
 //ProvideUserRepository Provide user repository
-func ProvideUserRepository(session *session.Session, Timeout time.Duration) domain.UserRepositoryCtx {
+func ProvideUserRepository(session *session.Session, Timeout time.Duration) domain.UserRepositoryDynamoDb {
 	return userRepository{Timeout: Timeout, client: dynamodb.New(session)}
 }
 
