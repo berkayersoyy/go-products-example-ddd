@@ -7,3 +7,4 @@ resources:
   - mysql-deployment.yaml
   - dynamodb-deployment.yaml
   - redis-deployment.yaml
+  - dashboard-admin-rolebinding.yaml

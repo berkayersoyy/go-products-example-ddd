@@ -36,3 +36,10 @@ stop-k8s:
 	./scripts/k8s/StopKubernetes.sh
 prerequisites: stop-k8s
 target: prerequisites
+
+.PHONY: get-token
+get-token:
+	chmod +x ./scripts/k8s/GetToken.sh
+	./scripts/k8s/GetToken.sh
+prerequisites: get-token
+target: prerequisites
