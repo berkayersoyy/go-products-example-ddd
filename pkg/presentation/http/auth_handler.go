@@ -47,7 +47,7 @@ func (a *authHandler) Login(c *gin.Context) {
 	}
 	user, err := a.UserService.FindByUsername(context.Background(), u.Username)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "Cannot find user")
+		c.JSON(http.StatusNotFound, "Cannot find user")
 		return
 	}
 	if user.Username != u.Username || user.Password != u.Password {
@@ -67,7 +67,7 @@ func (a *authHandler) Login(c *gin.Context) {
 		"access_token":  ts.AccessToken,
 		"refresh_token": ts.RefreshToken,
 	}
-	c.JSON(http.StatusOK, tokens)
+	c.JSON(http.StatusCreated, tokens)
 }
 func (a *authHandler) Refresh(c *gin.Context) {
 	mapToken := map[string]string{}
@@ -152,5 +152,5 @@ func (a *authHandler) Logout(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, delErr.Error())
 		return
 	}
-	c.JSON(http.StatusOK, "Successfully logged out")
+	c.JSON(http.StatusCreated, "Successfully logged out")
 }

@@ -49,7 +49,7 @@ func (u *userHandler) AddUser(c *gin.Context) {
 		return
 	}
 	createdUser := u.UserService.AddUser(user)
-	c.JSON(http.StatusOK, gin.H{"user": domain.ToUserDTO(createdUser)})
+	c.JSON(http.StatusCreated, gin.H{"user": domain.ToUserDTO(createdUser)})
 }
 
 func (u *userHandler) UpdateUser(c *gin.Context) {
@@ -77,7 +77,7 @@ func (u *userHandler) UpdateUser(c *gin.Context) {
 	user.Password = userDTO.Password
 	u.UserService.AddUser(user)
 
-	c.Status(http.StatusOK)
+	c.Status(http.StatusCreated)
 }
 
 func (u *userHandler) DeleteUser(c *gin.Context) {
@@ -98,6 +98,6 @@ func (u *userHandler) GetUserByUsername(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"user": domain.ToUserDTO(user)})
+	c.JSON(http.StatusCreated, gin.H{"user": domain.ToUserDTO(user)})
 
 }

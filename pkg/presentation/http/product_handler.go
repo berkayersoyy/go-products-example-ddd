@@ -97,7 +97,7 @@ func (p *productHandler) AddProduct(c *gin.Context) {
 	}
 	createdProduct := p.ProductService.AddProduct(product)
 
-	c.JSON(http.StatusOK, gin.H{"product": domain.ToProductDTO(createdProduct)})
+	c.JSON(http.StatusCreated, gin.H{"product": domain.ToProductDTO(createdProduct)})
 }
 
 // @BasePath /api/v1
@@ -142,7 +142,7 @@ func (p *productHandler) UpdateProduct(c *gin.Context) {
 	product.Description = productDTO.Description
 	p.ProductService.AddProduct(product)
 
-	c.Status(http.StatusOK)
+	c.Status(http.StatusCreated)
 }
 
 // @BasePath /api/v1
@@ -171,5 +171,5 @@ func (p *productHandler) DeleteProduct(c *gin.Context) {
 
 	p.ProductService.DeleteProduct(product)
 
-	c.Status(http.StatusOK)
+	c.Status(http.StatusCreated)
 }

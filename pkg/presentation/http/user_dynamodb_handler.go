@@ -51,7 +51,7 @@ func (u userHandlerDynamoDb) Insert(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
-	c.Status(http.StatusOK)
+	c.Status(http.StatusCreated)
 }
 
 // @BasePath /api/v1
@@ -157,7 +157,7 @@ func (u userHandlerDynamoDb) Update(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	c.Status(http.StatusOK)
+	c.Status(http.StatusCreated)
 }
 
 // @BasePath /api/v1
@@ -182,5 +182,5 @@ func (u userHandlerDynamoDb) Delete(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
-	c.Status(http.StatusOK)
+	c.Status(http.StatusCreated)
 }

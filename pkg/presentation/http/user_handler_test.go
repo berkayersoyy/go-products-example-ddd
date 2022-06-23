@@ -1,41 +1,42 @@
 package http
 
-//
 //import (
 //	"bytes"
 //	"encoding/json"
 //	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 //	"github.com/berkayersoyy/go-products-example-ddd/pkg/mocks"
 //	"github.com/gin-gonic/gin"
-//	"github.com/jinzhu/gorm"
 //	"github.com/stretchr/testify/assert"
 //	"github.com/stretchr/testify/mock"
+//	"github.com/twinj/uuid"
+//	"log"
 //	"net/http"
 //	"net/http/httptest"
 //	"testing"
+//	"time"
 //)
 //
 //func TestUserHandler_GetAllUsers(t *testing.T) {
 //	gin.SetMode(gin.TestMode)
 //	t.Run("Success", func(t *testing.T) {
-//		users := []domain.User{{Username: "test-username", Password: "test-pass", Model: gorm.Model{ID: 1}}}
-//		mockApi := mocks.UserHandler{}
-//		mockApi.On("GetAllUsers", mock.Anything).Return(users)
-//
 //		w := httptest.NewRecorder()
-//		r := gin.Default()
-//		r.GET("/v1/users", mockApi.GetAllUsers)
-//		req, err := http.NewRequest(http.MethodGet, "/v1/users", nil)
-//		req.Header.Set("Content-Type", "application/json")
-//		assert.NoError(t, err)
-//		r.ServeHTTP(w, req)
+//		c, _ := gin.CreateTestContext(w)
+//		userUUID := uuid.NewV4()
+//		users := []domain.User{{ID: "1", UUID: userUUID.String(), Username: "test-username", Password: "test-pass", CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: nil}}
+//		mockApi := mocks.UserHandler{}
+//		mockApi.On("GetAllUsers", mock.Anything).Return(gin.H{"users": users})
 //
-//		var respBody []domain.User
-//		err = json.NewDecoder(w.Body).Decode(&respBody)
+//		mockApi.GetAllUsers(c)
+//		//c.Params = []gin.Param{{Key: "users", Value: "user1"}}
+//
+//		usersData := c.Param("users")
+//		log.Println(usersData)
+//		var got gin.H
+//		err := json.Unmarshal(w.Body.Bytes(), &got)
 //		assert.NoError(t, err)
 //
 //		assert.Equal(t, 200, w.Code)
-//		assert.Equal(t, users, respBody)
+//		//assert.Equal(t, users, responseBody)
 //		mockApi.AssertNumberOfCalls(t, "GetAllUsers", 1)
 //	})
 //
@@ -43,7 +44,8 @@ package http
 //func TestUserHandler_GetUserByID(t *testing.T) {
 //	gin.SetMode(gin.TestMode)
 //	t.Run("Success", func(t *testing.T) {
-//		users := []domain.User{{Username: "test-username", Password: "test-pass", Model: gorm.Model{ID: 1}}}
+//		userUUID := uuid.NewV4()
+//		users := []domain.User{{ID: "1", UUID: userUUID.String(), Username: "test-username", Password: "test-pass", CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: nil}}
 //		mockApi := mocks.UserHandler{}
 //		mockApi.On("GetUserByID", mock.Anything).Return(users)
 //
@@ -71,7 +73,8 @@ package http
 //func TestUserHandler_AddUser(t *testing.T) {
 //	gin.SetMode(gin.TestMode)
 //	t.Run("Success", func(t *testing.T) {
-//		user := domain.User{Username: "test-username", Password: "test-pass", Model: gorm.Model{ID: 1}}
+//		userUUID := uuid.NewV4()
+//		user := domain.User{ID: "1", UUID: userUUID.String(), Username: "test-username", Password: "test-pass", CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: nil}
 //		mockApi := mocks.UserHandler{}
 //		mockApi.On("AddUser", mock.Anything).Return(user)
 //
@@ -98,7 +101,8 @@ package http
 //func TestUserHandler_UpdateUser(t *testing.T) {
 //	gin.SetMode(gin.TestMode)
 //	t.Run("Success", func(t *testing.T) {
-//		user := domain.User{Username: "test-username", Password: "test-pass", Model: gorm.Model{ID: 1}}
+//		userUUID := uuid.NewV4()
+//		user := domain.User{ID: "1", UUID: userUUID.String(), Username: "test-username", Password: "test-pass", CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: nil}
 //		mockApi := mocks.UserHandler{}
 //		mockApi.On("UpdateUser", mock.Anything).Return(user)
 //
