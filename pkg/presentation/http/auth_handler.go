@@ -1,7 +1,6 @@
 package http
 
 import (
-	"context"
 	"fmt"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 	"github.com/dgrijalva/jwt-go"
@@ -45,7 +44,7 @@ func (a *authHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
 		return
 	}
-	user, err := a.UserService.FindByUsername(context.Background(), u.Username)
+	user, err := a.UserService.FindByUsername(c, u.Username)
 	if err != nil {
 		c.JSON(http.StatusNotFound, "Cannot find user")
 		return

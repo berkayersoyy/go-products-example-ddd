@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -78,12 +77,12 @@ type UserRepository interface {
 
 //UserRepositoryDynamoDb User_repository_Dynamodb
 type UserRepositoryDynamoDb interface {
-	Update(ctx context.Context, user User) error
-	FindByUUID(ctx context.Context, id string) (User, error)
-	Insert(ctx context.Context, user User) error
-	Delete(ctx context.Context, id string) error
-	FindByUsername(ctx context.Context, username string) (User, error)
-	CreateTable(ctx context.Context) error
+	Update(ctx *gin.Context, user User) error
+	FindByUUID(ctx *gin.Context, id string) (User, error)
+	Insert(ctx *gin.Context, user User) error
+	Delete(ctx *gin.Context, id string) error
+	FindByUsername(ctx *gin.Context, username string) (User, error)
+	CreateTable(ctx *gin.Context) error
 }
 
 //UserService User_service
@@ -97,10 +96,10 @@ type UserService interface {
 
 //UserServiceDynamoDb User_service_dynamodb
 type UserServiceDynamoDb interface {
-	Update(ctx context.Context, user User) error
-	FindByUUID(ctx context.Context, id string) (User, error)
-	Insert(ctx context.Context, user User) error
-	Delete(ctx context.Context, uuid string) error
-	FindByUsername(ctx context.Context, username string) (User, error)
-	CreateTable(ctx context.Context) error
+	Update(ctx *gin.Context, user User) error
+	FindByUUID(ctx *gin.Context, id string) (User, error)
+	Insert(ctx *gin.Context, user User) error
+	Delete(ctx *gin.Context, uuid string) error
+	FindByUsername(ctx *gin.Context, username string) (User, error)
+	CreateTable(ctx *gin.Context) error
 }

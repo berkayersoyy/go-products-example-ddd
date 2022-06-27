@@ -56,16 +56,16 @@ type ProductHandler interface {
 
 //ProductRepository Product_Repository
 type ProductRepository interface {
-	GetAllProducts() []Product
-	GetProductByID(id uint) Product
-	AddProduct(product Product) Product
-	DeleteProduct(product Product)
+	GetAllProducts(c *gin.Context) []Product
+	GetProductByID(c *gin.Context, id uint) Product
+	AddProduct(c *gin.Context, product Product) Product
+	DeleteProduct(c *gin.Context, product Product)
 }
 
 //ProductService Product_Service
 type ProductService interface {
-	GetAllProducts() []Product
-	GetProductByID(id uint) Product
-	AddProduct(product Product) Product
-	DeleteProduct(product Product)
+	GetAllProducts(c *gin.Context) []Product
+	GetProductByID(c *gin.Context, id uint) Product
+	AddProduct(c *gin.Context, product Product) Product
+	DeleteProduct(c *gin.Context, product Product)
 }

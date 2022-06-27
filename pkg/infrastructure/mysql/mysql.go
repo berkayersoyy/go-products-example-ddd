@@ -33,11 +33,10 @@ func InitDb() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//TODO dsn refactoring
 	dsn := os.Getenv("MYSQL_DSN")
 	ctx := context.Background()
 	var db *gorm.DB
-	if err := retry.Fibonacci(ctx, 2*time.Second, func(ctx context.Context) error {
+	if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
 		db, err = gorm.Open("mysql", dsn)
 		if err != nil {
 			fmt.Println(err)

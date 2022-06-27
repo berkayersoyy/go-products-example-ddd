@@ -17,6 +17,7 @@ import (
 	"github.com/sethvargo/go-retry"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 	"log"
 	"time"
 )
@@ -39,7 +40,7 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 	userServiceDynamoDb := application.ProvideUserServiceDynamoDb(userRepositoryDynamoDb)
 	userHandlerDynamoDb := http.ProvideUserHandlerDynamoDb(userServiceDynamoDb)
 
-	err := userRepositoryDynamoDb.CreateTable(ctx)
+	err := userRepositoryDynamoDb.CreateTable(&gin.Context{})
 
 	if err != nil {
 		log.Fatalf("Error on creating users table, %s", err)
@@ -49,6 +50,9 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 	authAPI := http.ProvideAuthAPI(authService, userServiceDynamoDb)
 
 	router := gin.Default()
+
+	p := ginprometheus.NewPrometheus("gin")
+	p.Use(router)
 
 	//products
 	products := router.Group("/v1")
@@ -81,6 +85,11 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 	auth := router.Group("/v1")
 	auth.POST("/login", authAPI.Login)
 
+	//prometheus
+	//metricsMiddleware := prometheus.NewMetricsMiddleware()
+	//router.Use(metricsMiddleware.Metrics())
+	//router.GET("/metric", gin.WrapH(promhttp.Handler()))
+
 	//swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -103,7 +112,7 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 // @schemes http
 func main() {
 	fmt.Printf("Version: %s", version)
-	ctx := context.Background()
+	ctx := context.TODO()
 	dbClient := mysql.ProvideMysqlClient()
 	db := dbClient.GetClient()
 	defer db.Close()
