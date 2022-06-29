@@ -8,12 +8,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/twinj/uuid"
 	"log"
+	"net/http"
 	"os"
 	"time"
 )
@@ -24,11 +24,11 @@ type userRepository struct {
 }
 
 //ProvideUserRepository Provide user repository
-func ProvideUserRepository(session *session.Session, Timeout time.Duration) domain.UserRepositoryDynamoDb {
+func ProvideUserRepository(session *session.Session, Timeout time.Duration) domain.UserRepository {
 	return userRepository{Timeout: Timeout, client: dynamodb.New(session)}
 }
 
-func (u userRepository) CreateTable(ctx *gin.Context) error {
+func (u userRepository) CreateTable(ctx context.Context) error {
 	result, err := u.listTables(ctx)
 	if err != nil {
 		log.Println(err)
@@ -65,13 +65,14 @@ func (u userRepository) CreateTable(ctx *gin.Context) error {
 	log.Printf("Successfully created table %s", out)
 	return nil
 }
-func (u userRepository) Insert(ctx *gin.Context, user domain.User) error {
+func (u userRepository) Insert(ctx context.Context, user domain.User) error {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(ctx.Request.Header))
-	span := tracer.StartSpan("UserRepositoryDynamoDb.Insert", ext.RPCServerOption(parentSpan))
+	header := ctx.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
+	span := tracer.StartSpan("UserRepository.Insert", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
 	c, cancel := context.WithTimeout(ctx, u.Timeout)
@@ -84,7 +85,6 @@ func (u userRepository) Insert(ctx *gin.Context, user domain.User) error {
 	item, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Println(err)
 		return domain.ErrInternal
 	}
@@ -103,24 +103,22 @@ func (u userRepository) Insert(ctx *gin.Context, user domain.User) error {
 
 		if _, ok := err.(*dynamodb.ConditionalCheckFailedException); ok {
 			ext.LogError(span, err)
-			span.Finish()
 			return domain.ErrConflict
 		}
 		ext.LogError(span, err)
-		span.Finish()
 		return domain.ErrInternal
 	}
-	span.Finish()
 	return nil
 }
 
-func (u userRepository) FindByUUID(ctx *gin.Context, id string) (domain.User, error) {
+func (u userRepository) FindByUUID(ctx context.Context, id string) (domain.User, error) {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(ctx.Request.Header))
-	span := tracer.StartSpan("UserRepositoryDynamoDb.FindByUUID", ext.RPCServerOption(parentSpan))
+	header := ctx.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
+	span := tracer.StartSpan("UserRepository.FindByUUID", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
 	c, cancel := context.WithTimeout(ctx, u.Timeout)
@@ -136,7 +134,6 @@ func (u userRepository) FindByUUID(ctx *gin.Context, id string) (domain.User, er
 	res, err := u.client.GetItemWithContext(c, input)
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Println(err)
 
 		return domain.User{}, domain.ErrInternal
@@ -144,28 +141,26 @@ func (u userRepository) FindByUUID(ctx *gin.Context, id string) (domain.User, er
 
 	if res.Item == nil {
 		ext.LogError(span, err)
-		span.Finish()
 		return domain.User{}, domain.ErrNotFound
 	}
 
 	var user domain.User
 	if err := dynamodbattribute.UnmarshalMap(res.Item, &user); err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Println(err)
 		return domain.User{}, domain.ErrInternal
 	}
-	span.Finish()
 	return user, nil
 }
 
-func (u userRepository) FindByUsername(ctx *gin.Context, username string) (domain.User, error) {
+func (u userRepository) FindByUsername(ctx context.Context, username string) (domain.User, error) {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(ctx.Request.Header))
-	span := tracer.StartSpan("UserRepositoryDynamoDb.FindByUsername", ext.RPCServerOption(parentSpan))
+	header := ctx.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
+	span := tracer.StartSpan("UserRepository.FindByUsername", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
 	c, cancel := context.WithTimeout(ctx, u.Timeout)
@@ -182,14 +177,12 @@ func (u userRepository) FindByUsername(ctx *gin.Context, username string) (domai
 	res, err := u.client.ScanWithContext(c, input)
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Println(err)
 		return domain.User{}, domain.ErrInternal
 	}
 
 	if *res.Count == 0 {
 		ext.LogError(span, err)
-		span.Finish()
 		return domain.User{}, domain.ErrNotFound
 	}
 
@@ -200,7 +193,6 @@ func (u userRepository) FindByUsername(ctx *gin.Context, username string) (domai
 		if err != nil {
 			log.Println(err)
 			ext.LogError(span, err)
-			span.Finish()
 			return domain.User{}, domain.ErrInternal
 		}
 		if userToScan.Username != username {
@@ -208,17 +200,17 @@ func (u userRepository) FindByUsername(ctx *gin.Context, username string) (domai
 		}
 		user = userToScan
 	}
-	span.Finish()
 	return user, nil
 }
 
-func (u userRepository) Delete(ctx *gin.Context, uuid string) error {
+func (u userRepository) Delete(ctx context.Context, uuid string) error {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(ctx.Request.Header))
-	span := tracer.StartSpan("UserRepositoryDynamoDb.Delete", ext.RPCServerOption(parentSpan))
+	header := ctx.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
+	span := tracer.StartSpan("UserRepository.Delete", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
 	c, cancel := context.WithTimeout(ctx, u.Timeout)
@@ -233,22 +225,21 @@ func (u userRepository) Delete(ctx *gin.Context, uuid string) error {
 
 	if _, err := u.client.DeleteItemWithContext(c, input); err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Println(err)
 
 		return domain.ErrInternal
 	}
-	span.Finish()
 	return nil
 }
 
-func (u userRepository) Update(ctx *gin.Context, user domain.User) error {
+func (u userRepository) Update(ctx context.Context, user domain.User) error {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(ctx.Request.Header))
-	span := tracer.StartSpan("UserRepositoryDynamoDb.Update", ext.RPCServerOption(parentSpan))
+	header := ctx.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
+	span := tracer.StartSpan("UserRepository.Update", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
 	c, cancel := context.WithTimeout(ctx, u.Timeout)
@@ -275,12 +266,10 @@ func (u userRepository) Update(ctx *gin.Context, user domain.User) error {
 
 	if _, err := u.client.UpdateItemWithContext(c, input); err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Println(err)
 
 		return domain.ErrInternal
 	}
-	span.Finish()
 	return nil
 }
 
@@ -311,7 +300,7 @@ func contains(list []*string, compareItem string) bool {
 	}
 	return false
 }
-func (u userRepository) listTables(ctx *gin.Context) (*dynamodb.ListTablesOutput, error) {
+func (u userRepository) listTables(ctx context.Context) (*dynamodb.ListTablesOutput, error) {
 	c, cancel := context.WithTimeout(ctx, u.Timeout)
 	defer cancel()
 

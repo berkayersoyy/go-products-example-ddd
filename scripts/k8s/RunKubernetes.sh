@@ -1,6 +1,6 @@
 echo "Running deploy"
 echo "Building docker image"
-#Docker build -t berkayersoyy/go-products-example-ddd .
+Docker build -t berkayersoyy/go-products-example-ddd .
 
 #echo "Creating config map for prometheus"
 #kubectl create configmap prometheus-config --from-file prometheus/prometheus-k8s.yml

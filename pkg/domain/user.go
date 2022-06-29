@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -49,16 +50,16 @@ func ToUserDTOs(users []User) []UserDTO {
 }
 
 //UserHandler User_handler
-type UserHandler interface {
-	GetAllUsers(c *gin.Context)
-	GetUserByID(c *gin.Context)
-	AddUser(c *gin.Context)
-	UpdateUser(c *gin.Context)
-	DeleteUser(c *gin.Context)
-}
+//type UserHandler interface {
+//	GetAllUsers(c *gin.Context)
+//	GetUserByID(c *gin.Context)
+//	AddUser(c *gin.Context)
+//	UpdateUser(c *gin.Context)
+//	DeleteUser(c *gin.Context)
+//}
 
-//UserHandlerDynamoDb User_handler_dynamodb
-type UserHandlerDynamoDb interface {
+//UserHandler User_handler_dynamodb
+type UserHandler interface {
 	Update(c *gin.Context)
 	FindByUUID(c *gin.Context)
 	Insert(c *gin.Context)
@@ -67,39 +68,39 @@ type UserHandlerDynamoDb interface {
 }
 
 //UserRepository User_repository
-type UserRepository interface {
-	GetAllUsers() []User
-	GetUserByID(id uint) User
-	GetUserByUsername(username string) User
-	AddUser(user User) User
-	DeleteUser(user User)
-}
+//type UserRepository interface {
+//	GetAllUsers() []User
+//	GetUserByID(id uint) User
+//	GetUserByUsername(username string) User
+//	AddUser(user User) User
+//	DeleteUser(user User)
+//}
 
-//UserRepositoryDynamoDb User_repository_Dynamodb
-type UserRepositoryDynamoDb interface {
-	Update(ctx *gin.Context, user User) error
-	FindByUUID(ctx *gin.Context, id string) (User, error)
-	Insert(ctx *gin.Context, user User) error
-	Delete(ctx *gin.Context, id string) error
-	FindByUsername(ctx *gin.Context, username string) (User, error)
-	CreateTable(ctx *gin.Context) error
+//UserRepository User_repository_Dynamodb
+type UserRepository interface {
+	Update(ctx context.Context, user User) error
+	FindByUUID(ctx context.Context, id string) (User, error)
+	Insert(ctx context.Context, user User) error
+	Delete(ctx context.Context, id string) error
+	FindByUsername(ctx context.Context, username string) (User, error)
+	CreateTable(ctx context.Context) error
 }
 
 //UserService User_service
-type UserService interface {
-	GetAllUsers() []User
-	GetUserByID(id uint) User
-	AddUser(user User) User
-	GetUserByUsername(username string) User
-	DeleteUser(User)
-}
+//type UserService interface {
+//	GetAllUsers() []User
+//	GetUserByID(id uint) User
+//	AddUser(user User) User
+//	GetUserByUsername(username string) User
+//	DeleteUser(User)
+//}
 
-//UserServiceDynamoDb User_service_dynamodb
-type UserServiceDynamoDb interface {
-	Update(ctx *gin.Context, user User) error
-	FindByUUID(ctx *gin.Context, id string) (User, error)
-	Insert(ctx *gin.Context, user User) error
-	Delete(ctx *gin.Context, uuid string) error
-	FindByUsername(ctx *gin.Context, username string) (User, error)
-	CreateTable(ctx *gin.Context) error
+//UserService User_service_dynamodb
+type UserService interface {
+	Update(ctx context.Context, user User) error
+	FindByUUID(ctx context.Context, id string) (User, error)
+	Insert(ctx context.Context, user User) error
+	Delete(ctx context.Context, uuid string) error
+	FindByUsername(ctx context.Context, username string) (User, error)
+	CreateTable(ctx context.Context) error
 }

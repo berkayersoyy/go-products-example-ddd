@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -56,16 +57,16 @@ type ProductHandler interface {
 
 //ProductRepository Product_Repository
 type ProductRepository interface {
-	GetAllProducts(c *gin.Context) []Product
-	GetProductByID(c *gin.Context, id uint) Product
-	AddProduct(c *gin.Context, product Product) Product
-	DeleteProduct(c *gin.Context, product Product)
+	GetAllProducts(c context.Context) []Product
+	GetProductByID(c context.Context, id uint) Product
+	AddProduct(c context.Context, product Product) Product
+	DeleteProduct(c context.Context, product Product)
 }
 
 //ProductService Product_Service
 type ProductService interface {
-	GetAllProducts(c *gin.Context) []Product
-	GetProductByID(c *gin.Context, id uint) Product
-	AddProduct(c *gin.Context, product Product) Product
-	DeleteProduct(c *gin.Context, product Product)
+	GetAllProducts(c context.Context) []Product
+	GetProductByID(c context.Context, id uint) Product
+	AddProduct(c context.Context, product Product) Product
+	DeleteProduct(c context.Context, product Product)
 }

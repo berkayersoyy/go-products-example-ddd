@@ -1,11 +1,12 @@
 package application
 
 import (
+	"context"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
-	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"log"
+	"net/http"
 )
 
 type productService struct {
@@ -17,55 +18,55 @@ func ProvideProductService(p domain.ProductRepository) domain.ProductService {
 	return &productService{ProductRepository: p}
 }
 
-func (p *productService) GetAllProducts(c *gin.Context) []domain.Product {
+func (p *productService) GetAllProducts(c context.Context) []domain.Product {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	header := c.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
 	span := tracer.StartSpan("ProductService.GetAllProducts", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
-	span.Finish()
 	return p.ProductRepository.GetAllProducts(c)
 }
 
-func (p *productService) GetProductByID(c *gin.Context, id uint) domain.Product {
+func (p *productService) GetProductByID(c context.Context, id uint) domain.Product {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	header := c.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
 	span := tracer.StartSpan("ProductService.GetProductByID", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
-	span.Finish()
 	return p.ProductRepository.GetProductByID(c, id)
 }
 
-func (p *productService) AddProduct(c *gin.Context, product domain.Product) domain.Product {
+func (p *productService) AddProduct(c context.Context, product domain.Product) domain.Product {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	header := c.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
 	span := tracer.StartSpan("ProductService.AddProduct", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
 	p.ProductRepository.AddProduct(c, product)
-	span.Finish()
 	return product
 }
 
-func (p *productService) DeleteProduct(c *gin.Context, product domain.Product) {
+func (p *productService) DeleteProduct(c context.Context, product domain.Product) {
 	tracer := opentracing.GlobalTracer()
-	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	header := c.Value("header").(http.Header)
+	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
 	span := tracer.StartSpan("ProductService.DeleteProduct", ext.RPCServerOption(parentSpan))
+	defer span.Finish()
 	if err != nil {
 		ext.LogError(span, err)
-		span.Finish()
 		log.Printf("Error %s", err)
 	}
 	p.ProductRepository.DeleteProduct(c, product)
-	span.Finish()
 }

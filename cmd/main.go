@@ -25,29 +25,24 @@ import (
 //version app_version
 var version = "dev"
 
-func setup(db *gorm.DB, session *session.Session) *gin.Engine {
+func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engine {
 	productRepository := mysql.ProvideProductRepository(db)
 	productService := application.ProvideProductService(productRepository)
 	productAPI := http.ProvideProductAPI(productService)
 
-	//mysql
-	//userRepository := mysql.ProvideUserRepository(db)
-	//userService := application.ProvideUserService(userRepository)
-	//userAPI := http.ProvideUserAPI(userService)
+	//users dynamodb
+	userRepository := dyDb.ProvideUserRepository(session, time.Second*30)
+	userService := application.ProvideUserService(userRepository)
+	userHandler := http.ProvideUserHandler(userService)
 
-	//dynamodb
-	userRepositoryDynamoDb := dyDb.ProvideUserRepository(session, time.Second*30)
-	userServiceDynamoDb := application.ProvideUserServiceDynamoDb(userRepositoryDynamoDb)
-	userHandlerDynamoDb := http.ProvideUserHandlerDynamoDb(userServiceDynamoDb)
-
-	err := userRepositoryDynamoDb.CreateTable(&gin.Context{})
+	err := userRepository.CreateTable(ctx)
 
 	if err != nil {
 		log.Fatalf("Error on creating users table, %s", err)
 	}
 	redisClient := redis.ProvideRedisClient()
 	authService := application.ProvideAuthService(redisClient.GetClient())
-	authAPI := http.ProvideAuthAPI(authService, userServiceDynamoDb)
+	authAPI := http.ProvideAuthAPI(authService, userService)
 
 	router := gin.Default()
 
@@ -66,21 +61,13 @@ func setup(db *gorm.DB, session *session.Session) *gin.Engine {
 	products.DELETE("/products/:id", productAPI.DeleteProduct)
 	products.PUT("/products/:id", productAPI.UpdateProduct)
 
-	//users mysql
-	//users := router.Group("/v1/mysql")
-	//users.GET("/users", userAPI.GetAllUsers)
-	//users.POST("/users", userAPI.AddUser)
-	//users.GET("/users/:id", userAPI.GetUserByID)
-	//users.DELETE("/users/:id", userAPI.DeleteUser)
-	//users.PUT("/users/:id", userAPI.UpdateUser)
-
 	//users dynamodb
 	usersDynamoDb := router.Group("/v1/dynamodb")
-	usersDynamoDb.GET("/users/getbyuuid/:uuid", userHandlerDynamoDb.FindByUUID)
-	usersDynamoDb.GET("/users/getbyusername/:username", userHandlerDynamoDb.FindByUsername)
-	usersDynamoDb.POST("/users", userHandlerDynamoDb.Insert)
-	usersDynamoDb.DELETE("/users/:id", userHandlerDynamoDb.Delete)
-	usersDynamoDb.PUT("/users", userHandlerDynamoDb.Update)
+	usersDynamoDb.GET("/users/getbyuuid/:uuid", userHandler.FindByUUID)
+	usersDynamoDb.GET("/users/getbyusername/:username", userHandler.FindByUsername)
+	usersDynamoDb.POST("/users", userHandler.Insert)
+	usersDynamoDb.DELETE("/users/:id", userHandler.Delete)
+	usersDynamoDb.PUT("/users", userHandler.Update)
 
 	//auth
 	auth := router.Group("/v1")
@@ -118,7 +105,7 @@ func main() {
 		panic(err)
 	}
 
-	r := setup(db, ses)
+	r := setup(ctx, db, ses)
 	if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
 		err := r.Run()
 		if err != nil {

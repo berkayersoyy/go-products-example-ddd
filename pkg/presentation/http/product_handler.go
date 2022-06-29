@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/domain"
 	"github.com/berkayersoyy/go-products-example-ddd/pkg/tracing/jaeger"
 	"github.com/gin-gonic/gin"
@@ -40,15 +41,15 @@ func ProvideProductAPI(p domain.ProductService) domain.ProductHandler {
 func (p *productHandler) GetAllProducts(c *gin.Context) {
 	tracer, span := jaeger.InitJaeger(c, "ProductHandler.GetAllProducts", "GET")
 	err := tracer.Inject(span.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	defer span.Finish()
+	ctx := context.WithValue(c, "header", c.Request.Header)
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		log.Fatalf("Error %s", err)
 	}
-	products := p.ProductService.GetAllProducts(c)
+	products := p.ProductService.GetAllProducts(ctx)
 	span.SetTag("http.status_code", "200")
-	span.Finish()
 	c.JSON(http.StatusOK, gin.H{"products": products})
 }
 
@@ -71,23 +72,22 @@ func (p *productHandler) GetAllProducts(c *gin.Context) {
 func (p *productHandler) GetProductByID(c *gin.Context) {
 	tracer, span := jaeger.InitJaeger(c, "ProductHandler.GetProductByID", "GET")
 	err := tracer.Inject(span.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	defer span.Finish()
+	ctx := context.WithValue(c, "header", c.Request.Header)
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		log.Fatalf("Error %s", err)
 	}
 	id, _ := strconv.Atoi(c.Param("id"))
-	product := p.ProductService.GetProductByID(c, uint(id))
+	product := p.ProductService.GetProductByID(ctx, uint(id))
 	if product == (domain.Product{}) {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "404")
-		span.Finish()
 		c.JSON(http.StatusNotFound, "Product not found")
 		return
 	}
 	span.SetTag("http.status_code", "200")
-	span.Finish()
 	c.JSON(http.StatusOK, gin.H{"product": domain.ToProductDTO(product)})
 }
 
@@ -110,10 +110,11 @@ func (p *productHandler) GetProductByID(c *gin.Context) {
 func (p *productHandler) AddProduct(c *gin.Context) {
 	tracer, span := jaeger.InitJaeger(c, "ProductHandler.AddProduct", "POST")
 	err := tracer.Inject(span.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	defer span.Finish()
+	ctx := context.WithValue(c, "header", c.Request.Header)
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		log.Fatalf("Error %s", err)
 	}
 	var product domain.Product
@@ -121,7 +122,6 @@ func (p *productHandler) AddProduct(c *gin.Context) {
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -130,14 +130,12 @@ func (p *productHandler) AddProduct(c *gin.Context) {
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		c.Abort()
 		return
 	}
-	createdProduct := p.ProductService.AddProduct(c, product)
+	createdProduct := p.ProductService.AddProduct(ctx, product)
 	span.SetTag("http.status_code", "201")
-	span.Finish()
 	c.JSON(http.StatusCreated, gin.H{"product": domain.ToProductDTO(createdProduct)})
 }
 
@@ -160,10 +158,11 @@ func (p *productHandler) AddProduct(c *gin.Context) {
 func (p *productHandler) UpdateProduct(c *gin.Context) {
 	tracer, span := jaeger.InitJaeger(c, "ProductHandler.UpdateProduct", "UPDATE")
 	err := tracer.Inject(span.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	defer span.Finish()
+	ctx := context.WithValue(c, "header", c.Request.Header)
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		log.Fatalf("Error %s", err)
 	}
 	var productDTO domain.ProductDTO
@@ -171,7 +170,6 @@ func (p *productHandler) UpdateProduct(c *gin.Context) {
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -179,18 +177,16 @@ func (p *productHandler) UpdateProduct(c *gin.Context) {
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		c.Abort()
 		return
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
-	product := p.ProductService.GetProductByID(c, uint(id))
+	product := p.ProductService.GetProductByID(ctx, uint(id))
 	if product == (domain.Product{}) {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -198,10 +194,9 @@ func (p *productHandler) UpdateProduct(c *gin.Context) {
 	product.Name = productDTO.Name
 	product.Price = productDTO.Price
 	product.Description = productDTO.Description
-	p.ProductService.AddProduct(c, product)
+	p.ProductService.AddProduct(ctx, product)
 
 	span.SetTag("http.status_code", "201")
-	span.Finish()
 	c.Status(http.StatusCreated)
 }
 
@@ -224,25 +219,24 @@ func (p *productHandler) UpdateProduct(c *gin.Context) {
 func (p *productHandler) DeleteProduct(c *gin.Context) {
 	tracer, span := jaeger.InitJaeger(c, "ProductHandler.DeleteProduct", "DELETE")
 	err := tracer.Inject(span.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+	defer span.Finish()
+	ctx := context.WithValue(c, "header", c.Request.Header)
 	if err != nil {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		log.Fatalf("Error %s", err)
 	}
 	id, _ := strconv.Atoi(c.Param("id"))
-	product := p.ProductService.GetProductByID(c, uint(id))
+	product := p.ProductService.GetProductByID(ctx, uint(id))
 	if product == (domain.Product{}) {
 		ext.LogError(span, err)
 		span.SetTag("http.status_code", "400")
-		span.Finish()
 		c.Status(http.StatusBadRequest)
 		return
 	}
 
-	p.ProductService.DeleteProduct(c, product)
+	p.ProductService.DeleteProduct(ctx, product)
 
 	span.SetTag("http.status_code", "201")
-	span.Finish()
 	c.Status(http.StatusCreated)
 }
