@@ -14,11 +14,11 @@ import (
 //authHandler Auth handler
 type authHandler struct {
 	AuthService domain.AuthService
-	UserService domain.UserServiceDynamoDb
+	UserService domain.UserService
 }
 
 //ProvideAuthAPI Provide auth api
-func ProvideAuthAPI(a domain.AuthService, u domain.UserServiceDynamoDb) domain.AuthHandler {
+func ProvideAuthAPI(a domain.AuthService, u domain.UserService) domain.AuthHandler {
 	return &authHandler{AuthService: a, UserService: u}
 }
 

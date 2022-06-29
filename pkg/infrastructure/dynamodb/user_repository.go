@@ -235,6 +235,7 @@ func (u userRepository) Delete(ctx context.Context, uuid string) error {
 func (u userRepository) Update(ctx context.Context, user domain.User) error {
 	tracer := opentracing.GlobalTracer()
 	header := ctx.Value("header").(http.Header)
+	//opentracing.StartSpanFromContext(ctx,"UserRepository.Update")
 	parentSpan, err := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(header))
 	span := tracer.StartSpan("UserRepository.Update", ext.RPCServerOption(parentSpan))
 	defer span.Finish()
