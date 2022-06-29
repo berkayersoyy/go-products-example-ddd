@@ -7,6 +7,8 @@ metadata:
 spec:
   ports:
     - port: 8080
+      nodePort: 30100
+      targetPort: 8080
   selector:
     app: go-app
     tier: backend
@@ -68,6 +70,8 @@ spec:
               value: http://go-app-dynamodb:8000
             - name: REDIS_HOST
               value: go-app-redis:6379
+            - name: JAEGER_HOST
+              value: go-app-jaeger:6831
           ports:
             - containerPort: 8080
               name: go-app

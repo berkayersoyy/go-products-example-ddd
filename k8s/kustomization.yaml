@@ -2,9 +2,16 @@ secretGenerator:
 - name: mysql-pass
   literals:
   - password=123456
+configMapGenerator:
+  - files:
+      - prometheus-k8s.yml
+    name: prometheus-config
 resources:
   - app-deployment.yaml
   - mysql-deployment.yaml
   - dynamodb-deployment.yaml
   - redis-deployment.yaml
+  - grafana-deployment.yaml
+  - prometheus-deployment.yaml
+  - jaeger-deployment.yaml
   - dashboard-admin-rolebinding.yaml

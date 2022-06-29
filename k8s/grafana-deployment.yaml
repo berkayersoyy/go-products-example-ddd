@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-app-grafana
+  labels:
+    app: app-grafana
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30102
+  selector:
+    app: app-grafana
+    tier: grafana
+  type: NodePort
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pv-claim
+  labels:
+    app: app-grafana
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-app-grafana
+  labels:
+    app: app-grafana
+spec:
+  selector:
+    matchLabels:
+      app: app-grafana
+      tier: grafana
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: app-grafana
+        tier: grafana
+    spec:
+      containers:
+        - image: grafana/grafana
+          name: grafana
+          ports:
+            - containerPort: 3000
+              name: grafana
+          volumeMounts:
+            - name: grafana-persistent-storage
+              mountPath: /var/lib/grafana
+      volumes:
+        - name: grafana-persistent-storage
+          persistentVolumeClaim:
+            claimName: grafana-pv-claim

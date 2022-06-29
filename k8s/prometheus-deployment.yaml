@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-app-prometheus
+  labels:
+    app: app-prometheus
+spec:
+  ports:
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30101
+  selector:
+    app: app-prometheus
+    tier: prometheus
+  type: NodePort
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pv-claim
+  labels:
+    app: app-prometheus
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-app-prometheus
+  labels:
+    app: app-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: app-prometheus
+      tier: prometheus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: app-prometheus
+        tier: prometheus
+    spec:
+      containers:
+        - image: prom/prometheus:latest
+          name: prometheus
+          ports:
+            - containerPort: 9090
+              name: prometheus
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/prometheus/prometheus-k8s.yml
+              subPath: prometheus-k8s.yml
+            - name: prometheus-persistent-storage
+              mountPath: /var/lib/prometheus
+      volumes:
+        - name: prometheus-persistent-storage
+          persistentVolumeClaim:
+            claimName: prometheus-pv-claim
+        - name: config-volume
+          configMap:
+            name: prometheus-config
+      serviceAccountName: go-app-prometheus
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: go-app-prometheus
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - services
+      - nodes/metrics
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - configmaps
+    verbs: ["get"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: go-app-prometheus
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: go-app-prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: go-app-prometheus
+subjects:
+  - kind: ServiceAccount
+    name: go-app-prometheus
+    namespace: default
+

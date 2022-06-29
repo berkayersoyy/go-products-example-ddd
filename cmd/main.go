@@ -25,7 +25,7 @@ import (
 //version app_version
 var version = "dev"
 
-func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engine {
+func setup(db *gorm.DB, session *session.Session) *gin.Engine {
 	productRepository := mysql.ProvideProductRepository(db)
 	productService := application.ProvideProductService(productRepository)
 	productAPI := http.ProvideProductAPI(productService)
@@ -51,6 +51,7 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 
 	router := gin.Default()
 
+	//prometheus
 	p := ginprometheus.NewPrometheus("gin")
 	p.Use(router)
 
@@ -85,11 +86,6 @@ func setup(ctx context.Context, db *gorm.DB, session *session.Session) *gin.Engi
 	auth := router.Group("/v1")
 	auth.POST("/login", authAPI.Login)
 
-	//prometheus
-	//metricsMiddleware := prometheus.NewMetricsMiddleware()
-	//router.Use(metricsMiddleware.Metrics())
-	//router.GET("/metric", gin.WrapH(promhttp.Handler()))
-
 	//swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -122,7 +118,7 @@ func main() {
 		panic(err)
 	}
 
-	r := setup(ctx, db, ses)
+	r := setup(db, ses)
 	if err := retry.Fibonacci(ctx, 1*time.Second, func(ctx context.Context) error {
 		err := r.Run()
 		if err != nil {
